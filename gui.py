@@ -12,6 +12,8 @@ class MainWindow(QMainWindow):
         mainLayout = QVBoxLayout()
         navLayout = QHBoxLayout()
 
+        # Each navigation button calls changeScreen with the index of the appropriate
+        # screen in the stackedWidget
         accDetails = QPushButton("Account Details")
         accDetails.clicked.connect(lambda: self.changeScreen(0))
         home = QPushButton("Home")
@@ -24,6 +26,8 @@ class MainWindow(QMainWindow):
         navLayout.addWidget(newTrans)
         mainLayout.addLayout(navLayout)
 
+        # This is a list of all of the widgets that the app will use
+        # Each function should return a QWidget with the page contents
         self.stackedWidget = QStackedWidget()
         self.stackedWidget.addWidget(self.createAccDetailsScreen())
         self.stackedWidget.addWidget(self.createHomeScreen())
@@ -34,6 +38,10 @@ class MainWindow(QMainWindow):
         container.setLayout(mainLayout)
         self.setCentralWidget(container)
 
+        # Set screen to home
+        self.changeScreen(1)
+
+    # Create and return a QWidget that represents the account details screen
     def createAccDetailsScreen(self):
         screen = QWidget()
         layout = QVBoxLayout()
@@ -49,6 +57,7 @@ class MainWindow(QMainWindow):
         screen.setLayout(layout)
         return screen
 
+    # Create and return a QWidget that represents the home screen
     def createHomeScreen(self):
         screen = QWidget()
         layout = QVBoxLayout()
@@ -65,6 +74,7 @@ class MainWindow(QMainWindow):
         screen.setLayout(layout)
         return screen
 
+    # Create and return a QWidget that represents a new transaction screen
     def createNewTransScreen(self):
         screen = QWidget()
         layout = QVBoxLayout()
@@ -106,11 +116,15 @@ class MainWindow(QMainWindow):
         screen.setLayout(layout)
         return screen
 
+    # Function used to create a transaction when the submit
+    # button is pressed on the new transaction screen
     def addTransaction(self, names, ammount, comments):
         print(names)
         print(ammount)
         print(comments)
 
+    # Change the visible widget from the stackedWidget list
+    # screen is the index of the screen to show
     def changeScreen(self, screen):
         self.stackedWidget.setCurrentIndex(screen)
 
