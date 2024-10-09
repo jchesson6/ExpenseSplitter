@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QHeaderView, QLabel, QLineEdit, QTableWidgetItem, QTableWidget, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QStackedWidget
+from PyQt5.QtWidgets import QApplication, QHeaderView, QTextEdit, QLabel, QLineEdit, QTableWidgetItem, QTableWidget, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QStackedWidget
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator
 import sys
@@ -77,15 +77,22 @@ class MainWindow(QMainWindow):
         ammountLineEdit = QLineEdit()
         ammountLineEdit.setValidator(QDoubleValidator(0, 9999, 2))
         ammountLineEdit.setText("0.00")
+        commentsLabel = QLabel("Comments:")
+        commentsLabel.setAlignment(Qt.AlignHCenter)
+        commentsTextEdit = QTextEdit()
+        lineHeight = commentsTextEdit.fontMetrics().lineSpacing()
+        commentsTextEdit.setMinimumHeight(lineHeight * 5)
         submitButton = QPushButton("Submit")
         submitButton.clicked.connect(
             lambda: (
                 self.addTransaction(
                     [name.strip() for name in nameLineEdit.text().split(",")],
-                    float(ammountLineEdit.text())
+                    float(ammountLineEdit.text()),
+                    commentsTextEdit.text()
                 ),
                 nameLineEdit.setText(""),
-                ammountLineEdit.setText("0.00")
+                ammountLineEdit.setText("0.00"),
+                commentsTextEdit.setText("")
             )
         )
 
@@ -93,14 +100,16 @@ class MainWindow(QMainWindow):
         layout.addWidget(nameLineEdit)
         layout.addWidget(ammountLabel)
         layout.addWidget(ammountLineEdit)
+        layout.addWidget(commentsLabel)
+        layout.addWidget(commentsTextEdit)
         layout.addWidget(submitButton)
         screen.setLayout(layout)
         return screen
 
-    def addTransaction(self, names, ammount):
+    def addTransaction(self, names, ammount, comments):
         print(names)
         print(ammount)
-        pass
+        print(comments)
 
     def changeScreen(self, screen):
         self.stackedWidget.setCurrentIndex(screen)
