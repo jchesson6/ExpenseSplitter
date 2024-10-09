@@ -3,11 +3,21 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator
 import sys
 
+
+class InfoWindow(QMainWindow):
+    def __init__(self, title):
+        super().__init__()
+        self.setWindowTitle(title)
+
+    def set_size(self, length, width):
+        self.resize(length,width)
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
         self.setWindowTitle("Expenses Splitter")
+        self.resize(1200,800)
 
         mainLayout = QVBoxLayout()
         navLayout = QHBoxLayout()
@@ -15,31 +25,41 @@ class MainWindow(QMainWindow):
         # Each navigation button calls changeScreen with the index of the appropriate
         # screen in the stackedWidget
         accDetails = QPushButton("Account Details")
-        accDetails.clicked.connect(lambda: self.changeScreen(0))
         home = QPushButton("Home")
-        home.clicked.connect(lambda: self.changeScreen(1))
-        newTrans = QPushButton("New Transaction")
-        newTrans.clicked.connect(lambda: self.changeScreen(2))
-
+        events = QPushButton("Events")
+        #newTrans.clicked.connect(lambda: self.changeScreen(2))
         navLayout.addWidget(accDetails)
         navLayout.addWidget(home)
-        navLayout.addWidget(newTrans)
+        navLayout.addWidget(events)
         mainLayout.addLayout(navLayout)
 
-        # This is a list of all of the widgets that the app will use
-        # Each function should return a QWidget with the page contents
-        self.stackedWidget = QStackedWidget()
-        self.stackedWidget.addWidget(self.createAccDetailsScreen())
-        self.stackedWidget.addWidget(self.createHomeScreen())
-        self.stackedWidget.addWidget(self.createNewTransScreen())
-        mainLayout.addWidget(self.stackedWidget)
+        #create all separate screens
+        accDetailsScreen = self.createAccDetailsScreen()
+        homeScreen = self.createHomeScreen()
+        eventScreen = self.createEventScreen()
 
+        # The stacked widget holds all of the separate screens that the app can display
+        # None are displayed at the same time so changing the current widget changes the screen
+        self.stackedWidget = QStackedWidget()
+
+        self.stackedWidget.addWidget(accDetailsScreen)
+        accDetails.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(accDetailsScreen))
+
+        self.stackedWidget.addWidget(homeScreen)
+        home.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(homeScreen))
+
+        self.stackedWidget.addWidget(eventScreen)
+        events.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(eventScreen))
+
+        # Add stacked widget to the mainlayout
+        mainLayout.addWidget(self.stackedWidget)
+        
         container = QWidget()
         container.setLayout(mainLayout)
         self.setCentralWidget(container)
 
         # Set screen to home
-        self.changeScreen(1)
+        self.stackedWidget.setCurrentWidget(homeScreen)
 
     # Create and return a QWidget that represents the account details screen
     def createAccDetailsScreen(self):
@@ -66,7 +86,7 @@ class MainWindow(QMainWindow):
         transactionTable.setRowCount(1)
         transactionTable.setColumnCount(2)
         transactionTable.setItem(0, 0, QTableWidgetItem("Name"))
-        transactionTable.setItem(0, 1, QTableWidgetItem("Ammount Owed"))
+        transactionTable.setItem(0, 1, QTableWidgetItem("Amount Owed"))
         transactionTable.horizontalHeader().setVisible(False)
         transactionTable.verticalHeader().setVisible(False)
         transactionTable.horizontalHeader().setStretchLastSection(True)
@@ -74,6 +94,25 @@ class MainWindow(QMainWindow):
         layout.addWidget(transactionTable)
         screen.setLayout(layout)
         return screen
+    
+    def createEventScreen(self):
+        screen = QWidget()
+        layout = QVBoxLayout()
+        newEventButton = QPushButton("Create a New Event")
+        newEventButton.clicked.connect(self.createNewEventWindow)
+        eventcontainer = QWidget()
+        
+        layout.addWidget(newEventButton)
+        layout.addWidget(eventcontainer)
+        screen.setLayout(layout)
+
+        return screen
+    
+    def createNewEventWindow(self):
+        self.NewEventWindow = InfoWindow("New Event")
+        self.NewEventWindow.set_size(800, 600)
+        self.NewEventWindow.show() 
+        # will need to add modal dialog options to disable input on main window
 
     # Create and return a QWidget that represents a new transaction screen
     def createNewTransScreen(self):
@@ -125,10 +164,6 @@ class MainWindow(QMainWindow):
         print(ammount)
         print(comments)
 
-    # Change the visible widget from the stackedWidget list
-    # screen is the index of the screen to show
-    def changeScreen(self, screen):
-        self.stackedWidget.setCurrentIndex(screen)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
