@@ -58,6 +58,7 @@ class MainWindow(QMainWindow):
         return screen
 
     # Create and return a QWidget that represents the home screen
+    # TODO: Fill out transaction table
     def createHomeScreen(self):
         screen = QWidget()
         layout = QVBoxLayout()
@@ -118,6 +119,7 @@ class MainWindow(QMainWindow):
 
     # Function used to create a transaction when the submit
     # button is pressed on the new transaction screen
+    # TODO: Actually create transactions
     def addTransaction(self, names, ammount, comments):
         print(names)
         print(ammount)
