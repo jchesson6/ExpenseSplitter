@@ -1,324 +1,165 @@
-"""
-NOTE: Put transaction creation code in the createNewTransaction function
-
-There are 2 available buttons that can be used which are newButton1 and newButton2
-each button has functions for creating the widgets that will appear and enabling
-the pages widgets and disableing other pages widgets
-
-Look at correcponding HomeScreen and NewTransactionScreen functions as a reference
-
-Also the documentation for python and c++ are very similar for PyQt5 so
-if something how up under the c++ docs there is a good chance it will be in the python
-version too
-"""
-
-import PyQt5.QtWidgets as QtWidgets
-import PyQt5.QtCore as QtCore
-import PyQt5.QtGui as QtGui
+from PyQt5.QtWidgets import QApplication, QHeaderView, QTextEdit, QLabel, QLineEdit, QTableWidgetItem, QTableWidget, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QStackedWidget, QListWidget
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QDoubleValidator
 import sys
-
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 450
+import classes, homescreen, accountscreen, eventscreen
 
 
-# Class for nav buttons which are visible on every page
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.resize(SCREEN_WIDTH, SCREEN_HEIGHT)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+class InfoWindow(QMainWindow):
+    def __init__(self, title):
+        super().__init__()
+        self.setWindowTitle(title)
 
-        # adding navbuttons
-        self.createNavigationButtons()
+    def set_size(self, length, width):
+        self.resize(length,width)
 
-        self.createNewTransactionScreenWidgets()
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
 
-        self.createHomeScreenWidgets()
+        ## create variables
+        self.event_list = [] # should probably turn this into a dictionary
+        self.event_names = []
 
-        self.createNewButton1ScreenWidgets()
-        self.createNewButton2ScreenWidgets()
+        self.setWindowTitle("Expenses Splitter")
+        self.resize(1200,800)
 
-        self.screen = "home"
+        mainLayout = QVBoxLayout()
+        navLayout = QHBoxLayout()
 
-        MainWindow.setCentralWidget(self.centralwidget)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        # Each navigation button calls changeScreen with the index of the appropriate
+        # screen in the stackedWidget
+        accDetails = QPushButton("Account Details")
+        home = QPushButton("Home")
+        events = QPushButton("Events")
+        #newTrans.clicked.connect(lambda: self.changeScreen(2))
+        navLayout.addWidget(accDetails)
+        navLayout.addWidget(home)
+        navLayout.addWidget(events)
+        mainLayout.addLayout(navLayout)
 
-        self.goToHomeScreen()
+        #create all separate screens
+        self.accDetailsScreen = accountscreen.AccountScreen()
+        self.homeScreen = homescreen.HomeScreen()
+        self.eventScreen = eventscreen.EventScreen()
 
-    def createNavigationButtons(self):
-        self.homeButton = QtWidgets.QPushButton(self.centralwidget)
-        self.homeButton.setGeometry(
-            QtCore.QRect(
-                int(SCREEN_WIDTH * (2 / 5)),
-                0,
-                SCREEN_WIDTH // 5,
-                32
-            )
-        )
-        self.homeButton.setText("Home")
+        # The stacked widget holds all of the separate screens that the app can display
+        # None are displayed at the same time so changing the current widget changes the screen
+        self.stackedWidget = QStackedWidget()
 
-        self.createTransactionButton = QtWidgets.QPushButton(
-            self.centralwidget
-        )
-        self.createTransactionButton.setText("New Transaction")
-        self.createTransactionButton.setGeometry(
-            QtCore.QRect(
-                int(SCREEN_WIDTH * 3 / 5),
-                0,
-                SCREEN_WIDTH // 5,
-                32
-            )
-        )
+        self.stackedWidget.addWidget(self.accDetailsScreen)
+        accDetails.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.accDetailsScreen))
 
-        self.accountDetailsButton = QtWidgets.QPushButton(self.centralwidget)
-        self.accountDetailsButton.setGeometry(
-            QtCore.QRect(
-                int(SCREEN_WIDTH * 1 / 5),
-                0,
-                SCREEN_WIDTH // 5,
-                32
-            )
-        )
-        self.accountDetailsButton.setText("Account Details")
+        self.stackedWidget.addWidget(self.homeScreen)
+        home.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.homeScreen))
 
-        self.newButton1 = QtWidgets.QPushButton(self.centralwidget)
-        self.newButton1.setGeometry(
-            QtCore.QRect(
-                0,
-                0,
-                SCREEN_WIDTH // 5,
-                32
-            )
-        )
-        self.newButton1.setText("1")
+        self.stackedWidget.addWidget(self.eventScreen)
+        events.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.eventScreen))
 
-        self.newButton2 = QtWidgets.QPushButton(self.centralwidget)
-        self.newButton2.setGeometry(
-            QtCore.QRect(
-                int(SCREEN_WIDTH * 4 / 5),
-                0,
-                SCREEN_WIDTH // 5,
-                32
-            )
-        )
-        self.newButton2.setText("2")
+        # Add stacked widget to the mainlayout
+        mainLayout.addWidget(self.stackedWidget)
+        
+        container = QWidget()
+        container.setLayout(mainLayout)
+        self.setCentralWidget(container)
 
-        # adding signals and slots
-        self.homeButton.clicked.connect(self.goToHomeScreen)
-        self.accountDetailsButton.clicked.connect(self.goToDetailsScreen)
-        self.createTransactionButton.clicked.connect(
-            self.goToNewTransactionScreen
-        )
-        self.newButton1.clicked.connect(self.goToNewButton1Screen)
-        self.newButton2.clicked.connect(self.goToNewButton2Screen)
+        # Set screen to home
+        self.stackedWidget.setCurrentWidget(self.homeScreen)
 
-    def createNewButton1ScreenWidgets(self):
-        pass
+    # Create and return a QWidget that represents the account details screen
+    
+    # TODO: create ability to add friends to event
+    def createNewEventWindow(self):
+        self.NewEventWindow = InfoWindow("New Event")
+        self.NewEventWindow.set_size(300, 200)
+        
+        container = QWidget()
+        layout = QVBoxLayout()
 
-    def createNewButton2ScreenWidgets(self):
-        pass
+        nameLabel = QLabel("Enter event name:")
+        nameLabel.setAlignment(Qt.AlignHCenter)
+        self.eventnameLineEdit = QLineEdit()
 
-    def setNewButton1ScreenWidgets(self):
-        # Disable widgets for other screens
-        self.transactionScreenNameBox.setVisible(False)
-        self.transactionScreenNameBoxLabel.setVisible(False)
-        self.transactionScreenValueBox.setVisible(False)
-        self.transactionScreenValueBoxLabel.setVisible(False)
-        self.transactionScreenSubmitButton.setVisible(False)
+        #add a drop down selection or some sort of menu to select friends to add
 
-        self.homeScreenTransactionTable.setVisible(False)
+        add_event_button = QPushButton("Save")
+        add_event_button.clicked.connect(lambda: (self.addEvent()))
 
-        # Enable widgets for this screen here
+        layout.addWidget(nameLabel)
+        layout.addWidget(self.eventnameLineEdit)
+        layout.addWidget(add_event_button)
+        container.setLayout(layout)
+        self.NewEventWindow.setCentralWidget(container)
 
-    def setNewButton2ScreenWidgets(self):
-        # Disable widgets for other screens
-        self.transactionScreenNameBox.setVisible(False)
-        self.transactionScreenNameBoxLabel.setVisible(False)
-        self.transactionScreenValueBox.setVisible(False)
-        self.transactionScreenValueBoxLabel.setVisible(False)
-        self.transactionScreenSubmitButton.setVisible(False)
+        self.NewEventWindow.show() 
+        # will need to add modal dialog options to disable input on main window
 
-        self.homeScreenTransactionTable.setVisible(False)
+    # Create and return a QWidget that represents a new transaction screen
+    def createNewTransScreen(self):
+        screen = QWidget()
+        layout = QVBoxLayout()
 
-        # Enable widgets for this screen here
-
-    def goToNewButton1Screen(self):
-        self.setNewButton1ScreenWidgets()
-        # Add data to widgets here
-
-    def goToNewButton2Screen(self):
-        self.setNewButton2ScreenWidgets()
-        # Add data to widgets here
-
-    def createNewTransactionScreenWidgets(self):
-        self.transactionScreenNameBox = QtWidgets.QLineEdit(self.centralwidget)
-        self.transactionScreenNameBox.setGeometry(
-            QtCore.QRect(
-                SCREEN_WIDTH // 4,
-                SCREEN_HEIGHT // 4,
-                SCREEN_WIDTH // 2,
-                40
+        nameLabel = QLabel("Names (Separated By Commas):")
+        nameLabel.setAlignment(Qt.AlignHCenter)
+        nameLineEdit = QLineEdit()
+        ammountLabel = QLabel("Enter ammount:")
+        ammountLabel.setAlignment(Qt.AlignHCenter)
+        ammountLineEdit = QLineEdit()
+        ammountLineEdit.setValidator(QDoubleValidator(0, 9999, 2))
+        ammountLineEdit.setText("0.00")
+        commentsLabel = QLabel("Comments:")
+        commentsLabel.setAlignment(Qt.AlignHCenter)
+        commentsTextEdit = QTextEdit()
+        lineHeight = commentsTextEdit.fontMetrics().lineSpacing()
+        commentsTextEdit.setMinimumHeight(lineHeight * 5)
+        submitButton = QPushButton("Submit")
+        submitButton.clicked.connect(
+            lambda: (
+                self.addTransaction(
+                    [name.strip() for name in nameLineEdit.text().split(",")],
+                    float(ammountLineEdit.text()),
+                    commentsTextEdit.text()
+                ),
+                nameLineEdit.setText(""),
+                ammountLineEdit.setText("0.00"),
+                commentsTextEdit.setText("")
             )
         )
 
-        self.transactionScreenNameBoxLabel = QtWidgets.QLabel(
-            self.centralwidget
-        )
-        self.transactionScreenNameBoxLabel.setGeometry(
-            QtCore.QRect(
-                SCREEN_WIDTH // 4,
-                SCREEN_HEIGHT // 4 - 40,
-                SCREEN_WIDTH // 2,
-                40
-            )
-        )
-        self.transactionScreenNameBoxLabel.setText(
-            "Enter A Name For Transaction:"
-        )
-        self.transactionScreenNameBoxLabel.setAlignment(QtCore.Qt.AlignHCenter)
+        layout.addWidget(nameLabel)
+        layout.addWidget(nameLineEdit)
+        layout.addWidget(ammountLabel)
+        layout.addWidget(ammountLineEdit)
+        layout.addWidget(commentsLabel)
+        layout.addWidget(commentsTextEdit)
+        layout.addWidget(submitButton)
+        screen.setLayout(layout)
+        return screen
+    
 
-        self.transactionScreenValueBox = QtWidgets.QLineEdit(self.centralwidget)
-        self.transactionScreenValueBox.setGeometry(
-            QtCore.QRect(
-                SCREEN_WIDTH // 4,
-                SCREEN_HEIGHT // 2,
-                SCREEN_WIDTH // 2,
-                40
-            )
-        )
-        self.transactionScreenValueBox.setValidator(
-            QtGui.QDoubleValidator(0, 9999, 2)
-        )
+    def addEvent(self):
+        curevent = classes.Event(self.eventnameLineEdit.text())
+        self.event_list.append(curevent)
+        self.event_names.append(curevent.name)
+        self.eventScreen.update()
+        self.NewEventWindow.close()
 
-        self.transactionScreenValueBoxLabel = QtWidgets.QLabel(
-            self.centralwidget
-        )
-        self.transactionScreenValueBoxLabel.setGeometry(
-            QtCore.QRect(
-                SCREEN_WIDTH // 4,
-                SCREEN_HEIGHT // 2 - 40,
-                SCREEN_WIDTH // 2,
-                40
-            )
-        )
-        self.transactionScreenValueBoxLabel.setText(
-            "Enter Value For Transaction:"
-        )
-        self.transactionScreenValueBoxLabel.setAlignment(QtCore.Qt.AlignHCenter)
+        
 
-        self.transactionScreenSubmitButton = QtWidgets.QPushButton(
-            self.centralwidget
-        )
-        self.transactionScreenSubmitButton.setGeometry(
-            QtCore.QRect(
-                SCREEN_WIDTH // 4,
-                int(SCREEN_HEIGHT * (3 / 4)),
-                SCREEN_WIDTH // 2,
-                40
-            )
-        )
-        self.transactionScreenSubmitButton.setText("Submit")
-        self.transactionScreenSubmitButton.clicked.connect(
-            self.createNewTransaction
-        )
 
-    def createNewTransaction(self):
-
-        if self.transactionScreenValueBox.text() == ''   \
-            or self.transactionScreenNameBox.text() == '':
-            return
-
-        ammount = float(self.transactionScreenValueBox.text())
-        name = self.transactionScreenNameBox.text()
-
-        # NOTE: Handle Backend transaction logic here, or call into it from here
-        # TODO: Create popup when events are created or there are errors
-
-        # Clear text boxes
-        self.transactionScreenValueBox.setText('')
-        self.transactionScreenNameBox.setText('')
-
-    def setNewTransactionScreenWidgets(self):
-        self.transactionScreenNameBox.setVisible(True)
-        self.transactionScreenNameBoxLabel.setVisible(True)
-        self.transactionScreenValueBox.setVisible(True)
-        self.transactionScreenValueBoxLabel.setVisible(True)
-        self.transactionScreenSubmitButton.setVisible(True)
-
-        self.homeScreenTransactionTable.setVisible(False)
-
-    def createHomeScreenWidgets(self):
-        self.homeScreenTransactionTable = QtWidgets.QTableWidget(
-            self.centralwidget
-        )
-        self.homeScreenTransactionTable.setGeometry(
-            QtCore.QRect(
-                0,
-                40,
-                SCREEN_WIDTH,
-                SCREEN_HEIGHT - 40
-            )
-        )
-        self.homeScreenTransactionTable.setRowCount(1)
-        self.homeScreenTransactionTable.setColumnCount(2)
-        self.homeScreenTransactionTable.setItem(
-            0,
-            0,
-            QtWidgets.QTableWidgetItem("Name")
-        )
-        self.homeScreenTransactionTable.setItem(
-            0,
-            1,
-            QtWidgets.QTableWidgetItem("Ammount Owed")
-        )
-        self.homeScreenTransactionTable.horizontalHeader().setStretchLastSection(
-            True
-        )
-        self.homeScreenTransactionTable.horizontalHeader().setSectionResizeMode(
-            QtWidgets.QHeaderView.Stretch
-        )
-        self.homeScreenTransactionTable.horizontalHeader().setVisible(False)
-        self.homeScreenTransactionTable.verticalHeader().setVisible(False)
-
-    def setHomeScreenWidgets(self):
-        self.transactionScreenNameBox.setVisible(False)
-        self.transactionScreenNameBoxLabel.setVisible(False)
-        self.transactionScreenValueBox.setVisible(False)
-        self.transactionScreenValueBoxLabel.setVisible(False)
-        self.transactionScreenSubmitButton.setVisible(False)
-
-        self.homeScreenTransactionTable.setVisible(True)
-
-    def createDetailsScreenWidgets(self):
-        pass
-
-    def setDetailsScreenWidgets(self):
-        self.transactionScreenNameBox.setVisible(False)
-        self.transactionScreenNameBoxLabel.setVisible(False)
-        self.transactionScreenValueBox.setVisible(False)
-        self.transactionScreenValueBoxLabel.setVisible(False)
-        self.transactionScreenSubmitButton.setVisible(False)
-
-        self.homeScreenTransactionTable.setVisible(False)
-
-    def goToHomeScreen(self):
-        self.screen = "home"
-        self.setHomeScreenWidgets()
-
-    def goToNewTransactionScreen(self):
-        self.screen = "new_transaction"
-        self.setNewTransactionScreenWidgets()
-
-    def goToDetailsScreen(self):
-        self.screen = "details"
-        self.setDetailsScreenWidgets()
+    # Function used to create a transaction when the submit
+    # button is pressed on the new transaction screen
+    # TODO: Actually create transactions
+    def addTransaction(self, names, ammount, comments):
+        print(names)
+        print(ammount)
+        print(comments)
 
 
 if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
 
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    window = MainWindow()
+    window.show()
 
     sys.exit(app.exec_())

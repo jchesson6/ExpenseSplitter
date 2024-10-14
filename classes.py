@@ -6,15 +6,17 @@ The account will have to hold information about the amounts owed to and by the u
 The new friend class will contain the amounts owed to and by friends that the user adds to the app. """
 
 
-
 class Event:
 
     num_transactions = 0
     transactions = []
+    people = []
 
-    def __init__(self, name, people):
+    def __init__(self, name):
         self.name = name
-        self.people = people
+
+    def __str__(self):
+        return f'Event name: {self.name}'
 
     def add_people(self, people):
         self.people.append(people)
@@ -29,7 +31,6 @@ class Event:
 class Transaction:
 
     total = 0
-
 
     def __init__(self, description, payer, debtors):
         self.description = description
@@ -48,10 +49,13 @@ class Account:
     amt_owed_to_acc = 0
     amt_owed_by_acc = 0
     amt_owed_total = 0
+    friends = []
 
     def __init__(self, name):
         self.name = name
 
+    def add_friend(self, friend):
+        self.friends.append(friend)
 
     # need to look into adding iterator mechanics __iter__() and __next__()
 
@@ -63,3 +67,5 @@ class Friend:
 
     def __init__(self, name):
         self.name = name
+
+
