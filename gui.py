@@ -1,7 +1,8 @@
-from PyQt5.QtWidgets import QApplication, QHeaderView, QTextEdit, QLabel, QLineEdit, QTableWidgetItem, QTableWidget, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QStackedWidget
+from PyQt5.QtWidgets import QApplication, QHeaderView, QTextEdit, QLabel, QLineEdit, QTableWidgetItem, QTableWidget, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QStackedWidget, QListWidget
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator
 import sys
+import classes
 
 
 class InfoWindow(QMainWindow):
@@ -15,6 +16,11 @@ class InfoWindow(QMainWindow):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+
+        ## create variables
+        self.event_list = [] # should probably turn this into a dictionary
+        self.event_names = []
+
 
         self.setWindowTitle("Expenses Splitter")
         self.resize(1200,800)
@@ -34,22 +40,22 @@ class MainWindow(QMainWindow):
         mainLayout.addLayout(navLayout)
 
         #create all separate screens
-        accDetailsScreen = self.createAccDetailsScreen()
-        homeScreen = self.createHomeScreen()
-        eventScreen = self.createEventScreen()
+        self.accDetailsScreen = self.createAccDetailsScreen()
+        self.homeScreen = self.createHomeScreen()
+        self.eventScreen = self.createEventScreen()
 
         # The stacked widget holds all of the separate screens that the app can display
         # None are displayed at the same time so changing the current widget changes the screen
         self.stackedWidget = QStackedWidget()
 
-        self.stackedWidget.addWidget(accDetailsScreen)
-        accDetails.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(accDetailsScreen))
+        self.stackedWidget.addWidget(self.accDetailsScreen)
+        accDetails.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.accDetailsScreen))
 
-        self.stackedWidget.addWidget(homeScreen)
-        home.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(homeScreen))
+        self.stackedWidget.addWidget(self.homeScreen)
+        home.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.homeScreen))
 
-        self.stackedWidget.addWidget(eventScreen)
-        events.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(eventScreen))
+        self.stackedWidget.addWidget(self.eventScreen)
+        events.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.eventScreen))
 
         # Add stacked widget to the mainlayout
         mainLayout.addWidget(self.stackedWidget)
@@ -59,7 +65,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(container)
 
         # Set screen to home
-        self.stackedWidget.setCurrentWidget(homeScreen)
+        self.stackedWidget.setCurrentWidget(self.homeScreen)
 
     # Create and return a QWidget that represents the account details screen
     def createAccDetailsScreen(self):
@@ -95,22 +101,48 @@ class MainWindow(QMainWindow):
         screen.setLayout(layout)
         return screen
     
+    # TODO: add more elements to the event screen
     def createEventScreen(self):
         screen = QWidget()
         layout = QVBoxLayout()
         newEventButton = QPushButton("Create a New Event")
         newEventButton.clicked.connect(self.createNewEventWindow)
-        eventcontainer = QWidget()
+        # eventcontainer = QWidget()
+
+        eventtable = QListWidget()
+
+        
+        eventtable.addItems(self.event_names)
         
         layout.addWidget(newEventButton)
-        layout.addWidget(eventcontainer)
+        layout.addWidget(eventtable)
         screen.setLayout(layout)
 
         return screen
     
+    # TODO: create ability to add friends to event
     def createNewEventWindow(self):
         self.NewEventWindow = InfoWindow("New Event")
-        self.NewEventWindow.set_size(800, 600)
+        self.NewEventWindow.set_size(300, 200)
+        
+        container = QWidget()
+        layout = QVBoxLayout()
+
+        nameLabel = QLabel("Enter event name:")
+        nameLabel.setAlignment(Qt.AlignHCenter)
+        self.eventnameLineEdit = QLineEdit()
+
+        #add a drop down selection or some sort of menu to select friends to add
+
+        add_event_button = QPushButton("Save")
+        add_event_button.clicked.connect(lambda: (self.addEvent()))
+
+        layout.addWidget(nameLabel)
+        layout.addWidget(self.eventnameLineEdit)
+        layout.addWidget(add_event_button)
+        container.setLayout(layout)
+        self.NewEventWindow.setCentralWidget(container)
+
         self.NewEventWindow.show() 
         # will need to add modal dialog options to disable input on main window
 
@@ -155,6 +187,17 @@ class MainWindow(QMainWindow):
         layout.addWidget(submitButton)
         screen.setLayout(layout)
         return screen
+    
+
+    def addEvent(self):
+        curevent = classes.Event(self.eventnameLineEdit.text())
+        self.event_list.append(curevent)
+        self.event_names.append(curevent.name)
+        self.eventScreen.update()
+        self.NewEventWindow.close()
+
+        
+
 
     # Function used to create a transaction when the submit
     # button is pressed on the new transaction screen
