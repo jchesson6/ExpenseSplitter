@@ -64,6 +64,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(container)
 
         # Set screen to home
+        # TODO: change to log in screen or account creation screen
         self.stackedWidget.setCurrentWidget(self.homeScreen)
 
     # Create and return a QWidget that represents the account details screen
