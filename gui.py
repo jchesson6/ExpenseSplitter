@@ -2,8 +2,10 @@ from PyQt5.QtWidgets import QApplication, QHeaderView, QTextEdit, QLabel, QLineE
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator
 import sys
+import os
 import classes, homescreen, accountscreen, eventscreen
 
+# TODO: Remember to write event/transacton.friend changes to the account.txt file
 
 class InfoWindow(QMainWindow):
     def __init__(self, title):
@@ -58,22 +60,71 @@ class MainWindow(QMainWindow):
 
         # Add stacked widget to the mainlayout
         mainLayout.addWidget(self.stackedWidget)
-        
-        container = QWidget()
-        container.setLayout(mainLayout)
-        self.setCentralWidget(container)
+
+        mainWidget = QWidget()
+        mainWidget.setLayout(mainLayout)
+
+        # Widget for main app and login screen
+        stackedContainer = QStackedWidget()
+
+        # Create loginscreen
+        loginLayout = QVBoxLayout()
+        usernameLabel = QLabel("Username")
+        usernameLabel.setAlignment(Qt.AlignHCenter)
+        usernameBox = QLineEdit()
+        submitLogin = QPushButton("Login")
+
+        loginLayout.addWidget(usernameLabel)
+        loginLayout.addWidget(usernameBox)
+        loginLayout.addWidget(submitLogin)
+
+        loginWidget = QWidget()
+        loginWidget.setLayout(loginLayout)
+
+        stackedContainer.addWidget(mainWidget)
+        stackedContainer.addWidget(loginWidget)
+
+        submitLogin.clicked.connect(
+            lambda: (
+                stackedContainer.setCurrentWidget(mainWidget),
+                self.login(usernameBox.text())
+            )
+        )
+
+        self.setCentralWidget(stackedContainer)
 
         # Set screen to home
         # TODO: change to log in screen or account creation screen
         self.stackedWidget.setCurrentWidget(self.homeScreen)
 
-    # Create and return a QWidget that represents the account details screen
-    
+        if not os.path.isfile("account.txt"):
+            stackedContainer.setCurrentWidget(loginWidget)
+        else:
+            self.loadAccountData()
+            stackedContainer.setCurrentWidget(mainWidget)
+
+    # TODO: Find a better way to store data in the file
+    # Maybe json? and use pythons builtin json lib
+    # Or find a way to directly load and store python class data
+    def loadAccountData(self):
+        dataFile = open("account.txt", "r")
+        accountName = dataFile.read()
+        self.account = classes.Account(accountName)
+        print(f"Loaded account: {self.account.name}")
+        dataFile.close()
+
+    def login(self, username):
+        dataFile = open("account.txt", "w+")
+        dataFile.write("Username: " + username + "\n")
+        self.account = classes.Account(username)
+        print(f"Created account: {username}")
+        dataFile.close()
+
     # TODO: create ability to add friends to event
     def createNewEventWindow(self):
         self.NewEventWindow = InfoWindow("New Event")
         self.NewEventWindow.set_size(300, 200)
-        
+
         container = QWidget()
         layout = QVBoxLayout()
 
@@ -92,7 +143,7 @@ class MainWindow(QMainWindow):
         container.setLayout(layout)
         self.NewEventWindow.setCentralWidget(container)
 
-        self.NewEventWindow.show() 
+        self.NewEventWindow.show()
         # will need to add modal dialog options to disable input on main window
 
     # Create and return a QWidget that represents a new transaction screen
@@ -100,9 +151,13 @@ class MainWindow(QMainWindow):
         screen = QWidget()
         layout = QVBoxLayout()
 
+        # TODO: Make this a drop down menu and use the Friend class
+        # Also create a table to show all added friends
+        # Don't allow duplicates
         nameLabel = QLabel("Names (Separated By Commas):")
         nameLabel.setAlignment(Qt.AlignHCenter)
         nameLineEdit = QLineEdit()
+
         ammountLabel = QLabel("Enter ammount:")
         ammountLabel.setAlignment(Qt.AlignHCenter)
         ammountLineEdit = QLineEdit()
@@ -136,7 +191,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(submitButton)
         screen.setLayout(layout)
         return screen
-    
+
 
     def addEvent(self):
         curevent = classes.Event(self.eventnameLineEdit.text())
@@ -145,7 +200,7 @@ class MainWindow(QMainWindow):
         self.eventScreen.update()
         self.NewEventWindow.close()
 
-        
+
 
 
     # Function used to create a transaction when the submit
