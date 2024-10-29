@@ -6,11 +6,11 @@ import sys
 
 class FriendsList(QWidget):
     # IMPORTANT: account is a reference to the main account variable so dont change it here
-    def __init__(self, account):
+    def __init__(self, account, addFriend, removeFriend):
         super().__init__()
-        self.initGui(account)
+        self.initGui(account, addFriend, removeFriend)
 
-    def initGui(self, account):
+    def initGui(self, account, addFriend, removeFriend):
         self.account = account
         layout = QVBoxLayout()
         self.table = QTableWidget()
@@ -19,6 +19,24 @@ class FriendsList(QWidget):
 
         layout.addWidget(self.table)
         self.setLayout(layout)
+
+        addFriendButton = QPushButton("Add Friend");
+        removeFriendButton = QPushButton("Remove Friend");
+        nameBox = QLineEdit();
+
+        addRemoveLayout = QHBoxLayout();
+
+        addRemoveLayout.addWidget(nameBox);
+        addRemoveLayout.addWidget(addFriendButton);
+        addRemoveLayout.addWidget(removeFriendButton);
+
+        container = QWidget()
+        container.setLayout(addRemoveLayout);
+
+        layout.addWidget(container);
+
+        addFriendButton.clicked.connect(lambda: addFriend(nameBox.text()))
+        removeFriendButton.clicked.connect(lambda: removeFriend(nameBox.text()))
 
     # Visually update the list
     # This should be called when the app updates the main account variable
@@ -36,6 +54,12 @@ class FriendsList(QWidget):
             self.table.setItem(i + 1, 0, QTableWidgetItem(self.account.friends[i].name))
             self.table.setItem(i + 1, 1, QTableWidgetItem(str(self.account.friends[i].amount_owed_by_user)))
 
+def addFriendPlaceholder(name):
+    print(name)
+
+def removeFriendPlaceholder(name):
+    print(name)
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
@@ -46,7 +70,7 @@ if __name__ == "__main__":
     friend1.amount_owed_by_user = 0.0
     account.add_friend(friend1)
 
-    friendsList = FriendsList(account)
+    friendsList = FriendsList(account, addFriendPlaceholder, removeFriendPlaceholder)
 
     friend2 = classes.Friend("friend2")
     friend2.amount_owed_by_user = 0.0
