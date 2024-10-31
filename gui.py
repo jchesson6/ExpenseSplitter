@@ -43,7 +43,7 @@ class MainWindow(QMainWindow):
         #create all separate screens
         self.accDetailsScreen = accountscreen.AccountScreen()
         self.homeScreen = homescreen.HomeScreen()
-        self.eventScreen = eventscreen.EventScreen()
+        self.eventScreen = eventscreen.EventScreen(self)
 
         # The stacked widget holds all of the separate screens that the app can display
         # None are displayed at the same time so changing the current widget changes the screen
@@ -109,14 +109,23 @@ class MainWindow(QMainWindow):
     def loadAccountData(self):
         dataFile = open("account.txt", "r")
         accountName = dataFile.read()
-        self.account = classes.Account(accountName)
-        print(f"Loaded account: {self.account.name}")
         dataFile.close()
+
+        self.account = classes.Account.load()
+        self.accDetailsScreen.load_account(self.account)
+
+        for event in self.account.events:
+            self.eventScreen.addEventtoTable(event)
+
+        print(f"Loaded account: {self.account.username}")
+        
 
     def login(self, username):
         dataFile = open("account.txt", "w+")
         dataFile.write("Username: " + username + "\n")
         self.account = classes.Account(username)
+        self.accDetailsScreen.load_account(self.account)
+        self.account.save()
         print(f"Created account: {username}")
         dataFile.close()
 
@@ -210,6 +219,10 @@ class MainWindow(QMainWindow):
         print(names)
         print(ammount)
         print(comments)
+
+
+    def closeEvent(self, event):
+        self.account.save()
 
 
 if __name__ == "__main__":

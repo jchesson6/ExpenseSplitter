@@ -5,6 +5,8 @@ transaction, the individual amounts owed by the debtors and a description of the
 The account will have to hold information about the amounts owed to and by the user.
 The new friend class will contain the amounts owed to and by friends that the user adds to the app. """
 
+import pickle
+
 
 class Event:
 
@@ -51,11 +53,32 @@ class Account:
     amt_owed_total = 0
     friends = []
 
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, username):
+        self.username = username
+        self.events = []
+        self.friends = []
+        self.num_events = 0
+        self.num_friends = 0
+        self.amt_owed_to_acc = 0
+        self.amt_owed_by_acc = 0
+        self.amt_owed_total = 0
 
     def add_friend(self, friend):
         self.friends.append(friend)
+        self.num_friends += 1
+
+    def add_event(self, event):
+        self.events.append(event)
+        self.num_events = len(self.events)
+
+    def save(self):
+        with open('account.pkl', 'wb') as accfile:
+            pickle.dump(self, accfile)
+
+    @staticmethod
+    def load():
+        with open('account.pkl', 'rb') as accfile:
+            return pickle.load(accfile)
 
     # need to look into adding iterator mechanics __iter__() and __next__()
 

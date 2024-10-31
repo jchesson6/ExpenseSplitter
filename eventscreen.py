@@ -41,9 +41,10 @@ class EventScreen(QWidget):
     curEvent = None
     eventList = []
     
-    def __init__(self):
+    def __init__(self, originalwindow):
         super().__init__()
         self.init_gui()
+        self.originalwindow = originalwindow
 
     def init_gui(self):
         self.wlayout = QVBoxLayout()
@@ -52,6 +53,9 @@ class EventScreen(QWidget):
         # eventcontainer = QWidget()
 
         self.eventtable = QListWidget()
+
+        if len(self.eventList) > 0:
+            self.eventtable.insertItems(self.eventList)
         
         self.wlayout.addWidget(self.newEventButton)
         self.wlayout.addWidget(self.eventtable)
@@ -63,6 +67,13 @@ class EventScreen(QWidget):
 
     def saveCurEvent(self, event):
         self.curEvent = event
+        self.originalwindow.account.add_event(event)
+        self.originalwindow.account.save()
+
+        print(self.originalwindow.account.num_events)
+
+        for events in self.originalwindow.account.events:
+            print(events.name)
 
     def addEventtoTable(self, event):
         self.eventList.append(event)

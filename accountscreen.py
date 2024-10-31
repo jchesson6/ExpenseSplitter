@@ -20,3 +20,8 @@ class AccountScreen(QWidget):
         self.wlayout.addWidget(self.label2)
         self.wlayout.addWidget(self.label3)
         self.setLayout(self.wlayout)
+
+    def load_account(self, account):
+        self.label1.setText("Username: " + account.username)
+        self.label2.setText("Number of friends: " + str(account.num_friends))
+        self.label3.setText("Total Owed to Other Account: " + str(account.amt_owed_total))
