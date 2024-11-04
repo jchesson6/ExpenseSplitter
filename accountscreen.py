@@ -24,8 +24,6 @@ class editAccWindow(QWidget):
         self.close()
 
 
-
-
 class AccountScreen(QWidget):
     
     def __init__(self, originalwindow):
