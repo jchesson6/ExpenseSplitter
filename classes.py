@@ -73,6 +73,11 @@ class Account:
         self.num_friends = len(self.friends)
         self.save()
 
+    def remove_event(self, name):
+        del self.events[name]
+        self.num_events = len(self.events)
+        self.save()
+
 
     def add_event(self, event):
         self.events[event.name] = event

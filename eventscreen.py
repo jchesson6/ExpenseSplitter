@@ -37,6 +37,7 @@ class EventScreen(QWidget):
 
     def createEventTransactionsWindow(self, item):
         selEvent = self.originalwindow.account.events[item.text()]
+        self.curRow = self.eventtable.currentRow()
         self.eventTransWin = EventTransactionsWindow(self, selEvent)
         self.eventTransWin.show()
         
@@ -52,9 +53,13 @@ class EventScreen(QWidget):
             print(events)
 
     def addEventtoTable(self, event):
-        self.eventList.append(event)
         self.eventtable.addItem(event)
         self.eventtable.update()
+
+    def remove_event(self, event):
+        self.eventtable.takeItem(self.curRow)
+        self.eventtable.update()
+        self.originalwindow.account.remove_event(event.name)
 
 
 class EventTransactionsWindow(QWidget):
@@ -63,7 +68,7 @@ class EventTransactionsWindow(QWidget):
         super().__init__()
         self.transEvent = event
         self.originalwindow = originalwindow
-        self.resize(500, 300)
+        self.resize(800, 500)
         self.setWindowTitle(event.name + " Menu")
 
         self.container = QWidget()
@@ -72,6 +77,7 @@ class EventTransactionsWindow(QWidget):
         self.addtransbutton = QPushButton("Add Transaction")
         self.editeventbutton = QPushButton("Edit Event")
         self.deleventbutton = QPushButton("Delete Event")
+        self.deleventbutton.clicked.connect(self.removeEvent)
         transactionlabel = QLabel("Transactions")
         transactionlabel.setAlignment(Qt.AlignHCenter)
 
@@ -84,6 +90,10 @@ class EventTransactionsWindow(QWidget):
         layout.addWidget(self.transactionlist)
 
         self.setLayout(layout)
+
+    def removeEvent(self):
+        self.originalwindow.remove_event(self.transEvent)
+        self.close()
 
 
 class NewEventWindow(QWidget):
@@ -115,7 +125,7 @@ class NewEventWindow(QWidget):
         if self.eventnameLineEdit.text():
             self.savedEvent = classes.Event(self.eventnameLineEdit.text())
             originalwindow.saveCurEvent(self.savedEvent)
-            originalwindow.addEventtoTable(self.savedEvent)
+            originalwindow.addEventtoTable(self.savedEvent.name)
         self.close()
 
 
