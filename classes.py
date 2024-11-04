@@ -6,16 +6,17 @@ The account will have to hold information about the amounts owed to and by the u
 The new friend class will contain the amounts owed to and by friends that the user adds to the app. """
 
 import pickle
+import os
 
 
 class Event:
 
-    num_transactions = 0
     transactions = []
     people = []
 
     def __init__(self, name):
         self.name = name
+        self.num_transactions = 0
 
     def __str__(self):
         return f'Event name: {self.name}'
@@ -47,28 +48,32 @@ class Transaction:
 
 class Account:
 
-    num_friends = 0
-    amt_owed_to_acc = 0
-    amt_owed_by_acc = 0
-    amt_owed_total = 0
-    friends = []
-
     def __init__(self, username):
         self.username = username
-        self.events = []
-        self.friends = []
+        self.displayName = " "
+        self.events = {}
+        self.friends = {}
         self.num_events = 0
         self.num_friends = 0
         self.amt_owed_to_acc = 0
         self.amt_owed_by_acc = 0
         self.amt_owed_total = 0
 
+    def set_display_name(self, name):
+        self.displayName = name
+
+    def set_first_name(self, name):
+        self.firstname = name
+
+    def set_last_name(self, name):
+        self.lastname = name
+
     def add_friend(self, friend):
-        self.friends.append(friend)
+        self.friends[friend.name] = friend
         self.num_friends += 1
 
     def add_event(self, event):
-        self.events.append(event)
+        self.events[event.name] = event
         self.num_events = len(self.events)
 
     def save(self):
@@ -79,6 +84,11 @@ class Account:
     def load():
         with open('account.pkl', 'rb') as accfile:
             return pickle.load(accfile)
+        
+    
+    def deleteAcc(self):
+        os.remove('account.pkl')
+        os.remove('account.txt')
 
     # need to look into adding iterator mechanics __iter__() and __next__()
 

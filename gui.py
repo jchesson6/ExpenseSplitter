@@ -41,7 +41,7 @@ class MainWindow(QMainWindow):
         mainLayout.addLayout(navLayout)
 
         #create all separate screens
-        self.accDetailsScreen = accountscreen.AccountScreen()
+        self.accDetailsScreen = accountscreen.AccountScreen(self)
         self.homeScreen = homescreen.HomeScreen()
         self.eventScreen = eventscreen.EventScreen(self)
 
@@ -107,10 +107,7 @@ class MainWindow(QMainWindow):
     # Maybe json? and use pythons builtin json lib
     # Or find a way to directly load and store python class data
     def loadAccountData(self):
-        dataFile = open("account.txt", "r")
-        accountName = dataFile.read()
-        dataFile.close()
-
+        
         self.account = classes.Account.load()
         self.accDetailsScreen.load_account(self.account)
 
