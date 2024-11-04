@@ -37,14 +37,15 @@ class EventTransactionsWindow(QWidget):
         self.addtransbutton = QPushButton("Add Transaction")
         self.editeventbutton = QPushButton("Edit Event")
         self.deleventbutton = QPushButton("Delete Event")
-        self.scrollarea = QScrollArea()
+
+        self.transactionlist = QListWidget()
 
         layout.addWidget(self.addtransbutton)
         layout.addWidget(self.editeventbutton)
         layout.addWidget(self.deleventbutton)
-        layout.addWidget(self.scrollarea)
+        layout.addWidget(self.transactionlist)
 
-        self.container.setLayout(layout)
+        self.setLayout(layout)
 
         
 
@@ -117,12 +118,10 @@ class EventScreen(QWidget):
         self.newEventWin.show()
 
     def createEventTransactionsWindow(self, item):
-        
-        #self.eventTransWin = EventTransactionsWindow()
-        #self.eventTransWin.show()
         selEvent = self.originalwindow.account.events[item.text()]
-        print(selEvent.name)
-        print(selEvent.num_transactions)
+        self.eventTransWin = EventTransactionsWindow(self, selEvent)
+        self.eventTransWin.show()
+        
 
     def saveCurEvent(self, event):
         self.curEvent = event
