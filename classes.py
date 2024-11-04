@@ -61,20 +61,17 @@ class Account:
 
     def set_display_name(self, name):
         self.displayName = name
-
-    def set_first_name(self, name):
-        self.firstname = name
-
-    def set_last_name(self, name):
-        self.lastname = name
+        self.save()
 
     def add_friend(self, friend):
         self.friends[friend.name] = friend
-        self.num_friends += 1
+        self.num_friends = len(self.friends)
+        self.save()
 
     def add_event(self, event):
         self.events[event.name] = event
         self.num_events = len(self.events)
+        self.save()
 
     def save(self):
         with open('account.pkl', 'wb') as accfile:

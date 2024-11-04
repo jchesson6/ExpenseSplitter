@@ -110,6 +110,7 @@ class MainWindow(QMainWindow):
         
         self.account = classes.Account.load()
         self.accDetailsScreen.load_account(self.account)
+        self.homeScreen.updateList(self.account)
 
         for event in self.account.events:
             self.eventScreen.addEventtoTable(event)

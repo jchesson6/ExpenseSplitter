@@ -28,17 +28,32 @@ class HomeScreen(QWidget):
         layout.addWidget(self.friendslist)
         self.setLayout(layout)
 
+
     def createNewFriendWindow(self):
         self.newFriendWin = NewFriendWindow(self)
         self.newFriendWin.show()
 
+    #TODO: dont allow duplicates
     def add_friend(self, friend):
         self.originalwindow.account.add_friend(friend)
+        self.originalwindow.accDetailsScreen.load_account(self.originalwindow.account)
         newrow = self.friendslist.rowCount()
         self.friendslist.insertRow(newrow)
         self.friendslist.setItem(newrow, 0, QTableWidgetItem(friend.name))
         self.friendslist.setItem(newrow, 1, QTableWidgetItem(str(friend.amount_owed_by_user)))
         self.friendslist.setItem(newrow, 2, QTableWidgetItem(str(friend.amount_owed_to_user)))
+
+    def updateList(self, account):
+        for friend in account.friends:
+            newrow = self.friendslist.rowCount()
+            self.friendslist.insertRow(newrow)
+            self.friendslist.setItem(newrow, 0, QTableWidgetItem(friend))
+            self.friendslist.setItem(newrow, 1, QTableWidgetItem(str(account.friends[friend].amount_owed_by_user)))
+            self.friendslist.setItem(newrow, 2, QTableWidgetItem(str(account.friends[friend].amount_owed_to_user)))
+        
+        
+
+
 
 
 
