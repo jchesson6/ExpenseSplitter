@@ -42,7 +42,7 @@ class MainWindow(QMainWindow):
 
         #create all separate screens
         self.accDetailsScreen = accountscreen.AccountScreen(self)
-        self.homeScreen = homescreen.HomeScreen()
+        self.homeScreen = homescreen.HomeScreen(self)
         self.eventScreen = eventscreen.EventScreen(self)
 
         # The stacked widget holds all of the separate screens that the app can display

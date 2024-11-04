@@ -95,10 +95,9 @@ class Account:
 
 class Friend:
 
-    amount_owed_to_user = 0.0
-    amount_owed_by_user = 0.0
-
     def __init__(self, name):
         self.name = name
+        self.amount_owed_to_user = 0.0
+        self.amount_owed_by_user = 0.0
 
 

@@ -39,22 +39,17 @@ class AccountScreen(QWidget):
         self.label1 = QLabel("{DisplayName}")
         self.label2 = QLabel("{NumFriends}")
         self.label3 = QLabel("{TotalAmmountOwed}")
-        buttoncontainer1 = QWidget()
-        buttoncontainer2 = QWidget()
-        buttonlayout1 = QHBoxLayout()
-        buttonlayout2 = QHBoxLayout()
-        self.addfriendbutton = QPushButton("Add Friend")
+        buttoncontainer = QWidget()
+        buttonlayout = QHBoxLayout()
         self.editaccbutton = QPushButton("Edit Account")
         self.delaccbutton = QPushButton("Delete Account")
 
         self.editaccbutton.clicked.connect(lambda: self.createEditAccWindow())
         self.delaccbutton.clicked.connect(lambda: self.delete_account())
 
-        buttonlayout1.addWidget(self.addfriendbutton)
-        buttonlayout2.addWidget(self.editaccbutton)
-        buttonlayout2.addWidget(self.delaccbutton)
-        buttoncontainer1.setLayout(buttonlayout1)
-        buttoncontainer2.setLayout(buttonlayout2)
+        buttonlayout.addWidget(self.editaccbutton)
+        buttonlayout.addWidget(self.delaccbutton)
+        buttoncontainer.setLayout(buttonlayout)
         self.label0.setAlignment(Qt.AlignHCenter)
         self.label1.setAlignment(Qt.AlignHCenter)
         self.label2.setAlignment(Qt.AlignHCenter)
@@ -63,8 +58,8 @@ class AccountScreen(QWidget):
         layout.addWidget(self.label1)
         layout.addWidget(self.label2)
         layout.addWidget(self.label3)
-        layout.addWidget(buttoncontainer1)
-        layout.addWidget(buttoncontainer2)
+        layout.addWidget(buttoncontainer)
+
         self.setLayout(layout)
 
     def load_account(self, account):
