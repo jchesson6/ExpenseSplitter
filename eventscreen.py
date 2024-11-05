@@ -126,6 +126,7 @@ class NewEventWindow(QWidget):
         super().__init__()
         self.setWindowTitle("Create a New Event")
         self.resize(800, 500)
+        self.account = account
 
         self.container = QWidget()
         self.wlayout = QVBoxLayout()
@@ -160,7 +161,8 @@ class NewEventWindow(QWidget):
             self.savedEvent = classes.Event(self.eventnameLineEdit.text())
             friends = self.eventfriendslist.selectedItems()
             for friend in friends:
-                self.savedEvent.add_people(friend)
+                friend_obj = self.account.friends[friend.text()]
+                self.savedEvent.add_people(friend_obj)
             originalwindow.saveCurEvent(self.savedEvent)
             originalwindow.addEventtoTable(self.savedEvent.name)
         self.close()
