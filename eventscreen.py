@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QListWidget, QLab
 from PyQt5.QtGui import QWindow
 from PyQt5.QtCore import Qt
 import classes
+import transactions
 
 
 class EventScreen(QWidget):
@@ -17,7 +18,7 @@ class EventScreen(QWidget):
     def init_gui(self):
         self.wlayout = QVBoxLayout()
         self.newEventButton = QPushButton("New Event")
-        self.newEventButton.clicked.connect(self.createNewEventWindow)
+        self.newEventButton.clicked.connect(lambda: self.createNewEventWindow(self.originalwindow))
         # eventcontainer = QWidget()
 
         self.eventtable = QListWidget()
@@ -31,8 +32,8 @@ class EventScreen(QWidget):
         self.wlayout.addWidget(self.eventtable)
         self.setLayout(self.wlayout)
 
-    def createNewEventWindow(self):
-        self.newEventWin = NewEventWindow(self)
+    def createNewEventWindow(self, originalwindow):
+        self.newEventWin = NewEventWindow(self, originalwindow.account)
         self.newEventWin.show()
 
     def createEventTransactionsWindow(self, item):
@@ -71,10 +72,10 @@ class EventTransactionsWindow(QWidget):
         self.resize(800, 500)
         self.setWindowTitle(event.name + " Menu")
 
-        self.container = QWidget()
         layout = QVBoxLayout()
 
         self.addtransbutton = QPushButton("Add Transaction")
+        self.addtransbutton.clicked.connect(self.createNewTransactionWindow)
         self.editeventbutton = QPushButton("Edit Event")
         self.deleventbutton = QPushButton("Delete Event")
         self.deleventbutton.clicked.connect(self.removeEvent)
@@ -82,6 +83,10 @@ class EventTransactionsWindow(QWidget):
         transactionlabel.setAlignment(Qt.AlignHCenter)
 
         self.transactionlist = QListWidget()
+        for transaction in self.transEvent.transactions:
+            self.transactionlist.addItem(transaction)
+
+        self.transactionlist.itemDoubleClicked.connect(self.createTransactionMenu)
 
         layout.addWidget(self.addtransbutton)
         layout.addWidget(self.editeventbutton)
@@ -95,9 +100,29 @@ class EventTransactionsWindow(QWidget):
         self.originalwindow.remove_event(self.transEvent)
         self.close()
 
+    def createNewTransactionWindow(self):
+        self.newTransWin = transactions.NewTransactionWindow(self)
+        self.newTransWin.show()
+
+    def createTransactionMenu(self, item):
+        selTrans = self.transEvent.transactions[item.text()]
+        self.curRow = self.transactionlist.currentRow()
+        self.transMenu = transactions.TransactionMenu(self, selTrans)
+        self.transMenu.show()
+
+    def addTransaction(self, transaction):
+        self.transEvent.add_transaction(transaction)
+        self.transactionlist.addItem(transaction.name)
+
+    def removeTransaction(self, transaction):
+        self.transactionlist.takeItem(self.curRow)
+        self.transactionlist.update()
+        self.transEvent.remove_transaction(transaction)
+
+
 
 class NewEventWindow(QWidget):
-    def __init__(self, originalwindow):
+    def __init__(self, originalwindow, account):
         super().__init__()
         self.setWindowTitle("Create a New Event")
         self.resize(800, 500)
@@ -108,12 +133,21 @@ class NewEventWindow(QWidget):
         self.nameLabel = QLabel("Enter event name:")
         self.nameLabel.setAlignment(Qt.AlignHCenter)
         self.eventnameLineEdit = QLineEdit()
+
+        listlabel = QLabel("Select friends for event")
+        self.eventfriendslist = QListWidget()
+        self.eventfriendslist.setSelectionMode(QListWidget.ExtendedSelection)
+        for friend in account.friends:
+            self.eventfriendslist.addItem(friend)
+
         self.save_event_button = QPushButton("Save")
         self.save_event_button.clicked.connect(lambda: self.save_event_info(originalwindow))
         # self.add_event_button.clicked.connect(lambda: (self.addEvent()))
 
         self.wlayout.addWidget(self.nameLabel)
         self.wlayout.addWidget(self.eventnameLineEdit)
+        self.wlayout.addWidget(listlabel)
+        self.wlayout.addWidget(self.eventfriendslist)
         self.wlayout.addWidget(self.save_event_button)
         self.setLayout(self.wlayout)
 
@@ -124,13 +158,11 @@ class NewEventWindow(QWidget):
         #TODO: add else with a dialog box that says there was no name entered
         if self.eventnameLineEdit.text():
             self.savedEvent = classes.Event(self.eventnameLineEdit.text())
+            friends = self.eventfriendslist.selectedItems()
+            for friend in friends:
+                self.savedEvent.add_people(friend)
             originalwindow.saveCurEvent(self.savedEvent)
             originalwindow.addEventtoTable(self.savedEvent.name)
         self.close()
 
 
-class NewTransactionWindow(QWidget):
-    def __init__(self, originalwindow):
-        super().__init__()
-        self.setWindowTitle("New Transaction")
-        self.resize(800, 500)

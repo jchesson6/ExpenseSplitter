@@ -11,34 +11,40 @@ import os
 
 class Event:
 
-    transactions = []
-    people = []
 
     def __init__(self, name):
         self.name = name
+        self.transactions = {}
+        self.people = []
         self.num_transactions = 0
+        self.num_people = 0
 
     def __str__(self):
         return f'Event name: {self.name}'
 
     def add_people(self, people):
         self.people.append(people)
+        self.num_people = len(self.people)
         # this is basic but needs to be changed to make sure people areent duplicated, etc
 
     def add_transaction(self, transaction):
-        self.transactions.append(transaction)
+        self.transactions[transaction.name] = transaction
+        self.num_transactions = len(self.transactions)
 
+    def remove_transaction(self, transaction):
+        del self.transactions[transaction.name]
+        self.num_transactions = len(self.transactions)
     # need to look into adding iterator mechanics __iter__() and __next__()
 
 
 class Transaction:
 
-    total = 0
-
-    def __init__(self, description, payer, debtors):
+    def __init__(self, name, description):
+        self.name = name
         self.description = description
-        self.payer = payer
-        self.debtors = debtors
+        #self.total_paid = 0
+        #self.payer = payer
+        #self.debtors = debtors
 
     def add_debtor(self, debtor):
         self.debtors.append(debtor)
