@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QListWidget, QLabel, QLineEdit, QMainWindow, QScrollArea
+from PyQt5.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QTableWidget, QPushButton, QListWidget, QLabel, QLineEdit, QMainWindow, QScrollArea
 from PyQt5.QtGui import QWindow
 from PyQt5.QtCore import Qt
 import classes
@@ -6,10 +6,10 @@ import transactions
 
 
 class EventScreen(QWidget):
-    
+
     curEvent = None
     eventList = []
-    
+
     def __init__(self, originalwindow):
         super().__init__()
         self.init_gui()
@@ -27,7 +27,7 @@ class EventScreen(QWidget):
             self.eventtable.insertItems(self.eventList)
 
         self.eventtable.itemDoubleClicked.connect(self.createEventTransactionsWindow)
-        
+
         self.wlayout.addWidget(self.newEventButton)
         self.wlayout.addWidget(self.eventtable)
         self.setLayout(self.wlayout)
@@ -41,7 +41,7 @@ class EventScreen(QWidget):
         self.curRow = self.eventtable.currentRow()
         self.eventTransWin = EventTransactionsWindow(self, selEvent)
         self.eventTransWin.show()
-        
+
 
     def saveCurEvent(self, event):
         self.curEvent = event
@@ -109,6 +109,44 @@ class EventTransactionsWindow(QWidget):
         self.curRow = self.transactionlist.currentRow()
         self.transMenu = transactions.TransactionMenu(self, selTrans)
         self.transMenu.show()
+
+    def editTransaction(self, transaction):
+        self.editTransWindow = transactions.EditTransactionWindow(self, transaction)
+        self.editTransWindow.show()
+
+    def submitTransactionEdit(self, oldTransaction):
+        name = self.editTransWindow.nameLineEdit.text()
+        desc = self.editTransWindow.descLineEdit.text()
+        debtorData = []
+        rows = self.editTransWindow.debtorsTable.rowCount()
+        for r in range(rows):
+            item = ["", -999]
+            debtorname = self.editTransWindow.debtorsTable.item(r, 0)
+            ammount = self.editTransWindow.debtorsTable.item(r, 1)
+
+            if debtorname and debtorname.text():
+                item[0] = debtorname.text()
+            if ammount and ammount.text():
+                try:
+                    item[1] = float(ammount.text())
+                except ValueError:
+                    # Handle Error
+                    print("Error: item is not a float")
+                    return
+
+            if item[0] != "" or item[1] != -999:
+                debtorData.append(item)
+            else:
+                print("Invalid debtor. Not adding")
+
+        newTransaction = classes.Transaction(name, desc)
+        for i in range(len(debtorData)):
+            newTransaction.add_debtor(debtorData[i])
+
+        self.removeTransaction(oldTransaction)
+        self.addTransaction(newTransaction)
+        self.editTransWindow.close()
+
 
     def addTransaction(self, transaction):
         self.transEvent.add_transaction(transaction)

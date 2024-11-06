@@ -44,7 +44,7 @@ class Transaction:
         self.description = description
         #self.total_paid = 0
         #self.payer = payer
-        #self.debtors = debtors
+        self.debtors = []
 
     def add_debtor(self, debtor):
         self.debtors.append(debtor)
@@ -98,8 +98,8 @@ class Account:
     def load():
         with open('account.pkl', 'rb') as accfile:
             return pickle.load(accfile)
-        
-    
+
+
     def deleteAcc(self):
         os.remove('account.pkl')
         os.remove('account.txt')
