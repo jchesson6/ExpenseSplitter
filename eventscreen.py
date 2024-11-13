@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QTableWidget, QPushButton, QListWidget, QLabel, QLineEdit, QMainWindow, QScrollArea
-from PyQt5.QtGui import QWindow
+from PyQt5.QtWidgets import QWidget, QGridLayout, QListWidgetItem, QVBoxLayout, QTableWidget, QPushButton, QListWidget, QLabel, QLineEdit, QMainWindow, QScrollArea
+from PyQt5.QtGui import QWindow, QColor
 from PyQt5.QtCore import Qt
 import classes
 import transactions
@@ -79,22 +79,45 @@ class EventTransactionsWindow(QWidget):
         self.editeventbutton = QPushButton("Edit Event")
         self.deleventbutton = QPushButton("Delete Event")
         self.deleventbutton.clicked.connect(self.removeEvent)
-        transactionlabel = QLabel("Transactions")
-        transactionlabel.setAlignment(Qt.AlignHCenter)
+        self.transactionlabel = QLabel("Transactions")
+        self.transactionlabel.setAlignment(Qt.AlignHCenter)
 
         self.transactionlist = QListWidget()
         for transaction in self.transEvent.transactions:
-            self.transactionlist.addItem(transaction)
+            if self.transEvent.transactions[transaction].isPaid:
+                item = QListWidgetItem(transaction)
+                item.setBackground(QColor(0x00FF00))
+                self.transactionlist.addItem(item)
+            else:
+                item = QListWidgetItem(transaction)
+                item.setBackground(QColor(0xFF0000))
+                item.setForeground(QColor(0xFFFFFF))
+                self.transactionlist.addItem(item)
 
         self.transactionlist.itemDoubleClicked.connect(self.createTransactionMenu)
 
         layout.addWidget(self.addtransbutton)
         layout.addWidget(self.editeventbutton)
         layout.addWidget(self.deleventbutton)
-        layout.addWidget(transactionlabel)
+        layout.addWidget(self.transactionlabel)
         layout.addWidget(self.transactionlist)
 
         self.setLayout(layout)
+
+    def markTransactionAsPaid(self, transaction):
+        self.transEvent.transactions[transaction.name].mark_as_paid()
+        self.transactionlist.clear()
+        for transaction in self.transEvent.transactions:
+            if self.transEvent.transactions[transaction].isPaid:
+                item = QListWidgetItem(transaction)
+                item.setBackground(QColor(0x00FF00))
+                self.transactionlist.addItem(item)
+            else:
+                item = QListWidgetItem(transaction)
+                item.setBackground(QColor(0xFF0000))
+                item.setForeground(QColor(0xFFFFFF))
+                self.transactionlist.addItem(item)
+        
 
     def removeEvent(self):
         self.originalwindow.remove_event(self.transEvent)
@@ -150,7 +173,9 @@ class EventTransactionsWindow(QWidget):
 
     def addTransaction(self, transaction):
         self.transEvent.add_transaction(transaction)
-        self.transactionlist.addItem(transaction.name)
+        item = QListWidgetItem(transaction.name)
+        item.setBackground(QColor(0xFF0000))
+        self.transactionlist.addItem(item)
 
     def removeTransaction(self, transaction):
         self.transactionlist.takeItem(self.curRow)

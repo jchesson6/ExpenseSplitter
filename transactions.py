@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QTableWidget, QTableWidgetItem, QGridLayout, QVBoxLayout, QPushButton, QListWidget, QLabel, QLineEdit, QMainWindow, QScrollArea, QTextEdit, QAbstractItemView
+from PyQt5.QtWidgets import QWidget, QTableWidget, QTableWidgetItem, QGridLayout, QHeaderView, QVBoxLayout, QPushButton, QListWidget, QLabel, QLineEdit, QMainWindow, QScrollArea, QTextEdit, QAbstractItemView
 from PyQt5.QtGui import QWindow
 from PyQt5.QtCore import Qt
 import classes
@@ -48,11 +48,19 @@ class TransactionMenu(QWidget):
         self.descLabel = QLabel("Description: " + self.transaction.description)
         self.debtorsTable = QTableWidget(len(self.transaction.debtors), 2)
 
+        self.debtorsTable.setHorizontalHeaderLabels(["Debtor", "Ammount"])
+        self.debtorsTable.horizontalHeader().setStretchLastSection(True)
+        self.debtorsTable.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         for i in range(len(self.transaction.debtors)):
             self.debtorsTable.setItem(i, 0, QTableWidgetItem(self.transaction.debtors[i][0]))
             self.debtorsTable.setItem(i, 1, QTableWidgetItem(str(self.transaction.debtors[i][1])))
 
         self.debtorsTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
+        self.setaspaidbutton = QPushButton("Mark As Paid")
+        self.setaspaidbutton.clicked.connect(lambda: (
+            self.originalwindow.markTransactionAsPaid(self.transaction)
+        ))
 
         self.editeventbutton = QPushButton("Edit Transaction")
         self.editeventbutton.clicked.connect(self.edit_transaction)
@@ -62,6 +70,7 @@ class TransactionMenu(QWidget):
         layout.addWidget(self.nameLabel)
         layout.addWidget(self.descLabel)
         layout.addWidget(self.debtorsTable)
+        layout.addWidget(self.setaspaidbutton)
         layout.addWidget(self.editeventbutton)
         layout.addWidget(self.deleventbutton)
         self.setLayout(layout)
@@ -95,6 +104,8 @@ class EditTransactionWindow(QWidget):
             self.debtorsTable.insertRow(self.debtorsTable.rowCount())
         )
         self.debtorsTable = QTableWidget(len(self.transaction.debtors), 2)
+        self.debtorsTable.horizontalHeader().setStretchLastSection(True)
+        self.debtorsTable.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.debtorsTable.setHorizontalHeaderLabels(["Debtor", "Ammount"])
         self.debtorsTable.setEditTriggers(QTableWidget.AllEditTriggers)
         self.submitButton = QPushButton("Submit")

@@ -44,10 +44,14 @@ class Transaction:
         self.description = description
         #self.total_paid = 0
         #self.payer = payer
+        self.isPaid = False
         self.debtors = []
 
     def add_debtor(self, debtor):
         self.debtors.append(debtor)
+        
+    def mark_as_paid(self):
+        self.isPaid = True
 
     # need to look into adding iterator mechanics __iter__() and __next__()
 
