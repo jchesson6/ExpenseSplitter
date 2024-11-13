@@ -24,6 +24,10 @@ class NewTransactionWindow(QWidget):
         self.debtorsel = QComboBox()
         self.debtoramt = QDoubleSpinBox()
 
+        for person in originalwindow.transEvent.people:
+            self.payersel.addItem(person.name)
+            self.debtorsel.addItem(person.name)
+
         self.payerlabel = QLabel("Payers:")
         self.payercontainer = QWidget()
         self.debtorcontainer = QWidget()
