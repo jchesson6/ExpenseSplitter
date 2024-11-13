@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import (QWidget, QTableWidget, QTableWidgetItem, QGridLayout, QHeaderView, QVBoxLayout, QPushButton, QListWidget, 
-                             QLabel, QLineEdit, QMainWindow, QScrollArea, QTextEdit, QAbstractItemView, QComboBox, QDoubleSpinBox , QHBoxLayout
+                             QLabel, QLineEdit, QMainWindow, QScrollArea, QTextEdit, QAbstractItemView, QComboBox, QDoubleSpinBox , QHBoxLayout,
+                             QSizePolicy
 )
 from PyQt5.QtGui import QWindow
 from PyQt5.QtCore import Qt
@@ -16,6 +17,7 @@ class NewTransactionWindow(QWidget):
         self.transnamefield = QLineEdit()
         desclabel = QLabel("Enter a description for transaction")
         self.description = QTextEdit()
+        self.description.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.savebutton = QPushButton("Save")
         self.savebutton.clicked.connect(self.saveTransaction)
 
@@ -35,6 +37,7 @@ class NewTransactionWindow(QWidget):
 
         self.payerlabel = QLabel("Payers:")
         self.payercontainer = QWidget()
+        self.payercontainer.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.payerbutcont = QWidget()
         self.paycontlayout = QVBoxLayout()
         self.blayoutp = QHBoxLayout()
@@ -46,6 +49,7 @@ class NewTransactionWindow(QWidget):
 
         self.debtorlabel = QLabel("Debtors:")
         self.debtorcontainer = QWidget()
+        self.debtorcontainer.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.debtorbutcont = QWidget()
         self.debtorcontlayout = QVBoxLayout()
         self.blayoutd = QHBoxLayout()
