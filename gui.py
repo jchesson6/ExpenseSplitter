@@ -24,7 +24,7 @@ class MainWindow(QMainWindow):
         self.event_names = []
 
         self.setWindowTitle("Expenses Splitter")
-        self.resize(1200,800)
+        self.resize(2000,1200)
 
         mainLayout = QVBoxLayout()
         navLayout = QHBoxLayout()

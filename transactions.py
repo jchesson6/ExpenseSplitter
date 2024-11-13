@@ -9,7 +9,7 @@ class NewTransactionWindow(QWidget):
     def __init__(self, originalwindow):
         super().__init__()
         self.originalwindow = originalwindow
-        self.resize(800, 500)
+        self.resize(1000, 600)
         self.setWindowTitle("Add a New Transaction to " + originalwindow.transEvent.name)
         self.tlayout = QVBoxLayout()
         namelabel = QLabel("Enter Transaction name")
@@ -78,10 +78,13 @@ class NewTransactionWindow(QWidget):
     def add_payer(self):
         payersel = QComboBox()
         payeramt = QDoubleSpinBox()
+        delbutton = QPushButton("Delete")
+        delbutton.setFixedSize(100, 50)
         blayout = QHBoxLayout()
         cont = QWidget()
         blayout.addWidget(payersel)
         blayout.addWidget(payeramt)
+        blayout.addWidget(delbutton)
         cont.setLayout(blayout)
         self.num_payers += 1
         self.paycontlayout.insertWidget(len(self.paycontlayout), cont)
@@ -89,10 +92,13 @@ class NewTransactionWindow(QWidget):
     def add_debtor(self):
         debtorsel = QComboBox()
         debtoramt = QDoubleSpinBox()
+        delbutton = QPushButton("Delete")
+        delbutton.setFixedSize(100, 50)
         blayout = QHBoxLayout()
         cont = QWidget()
         blayout.addWidget(debtorsel)
         blayout.addWidget(debtoramt)
+        blayout.addWidget(delbutton)
         cont.setLayout(blayout)
         self.num_debtors += 1
         self.debtorcontlayout.insertWidget(len(self.debtorcontlayout), cont)
