@@ -1,6 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QLineEdit
 from PyQt5.QtCore import Qt
-import friendslist
 
 # not sure if we should allow username to be changed since you would have to reset the account login
 class editAccWindow(QWidget):

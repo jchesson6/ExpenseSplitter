@@ -80,6 +80,7 @@ class NewTransactionWindow(QWidget):
         payeramt = QDoubleSpinBox()
         delbutton = QPushButton("Delete")
         delbutton.setFixedSize(100, 50)
+        delbutton.clicked.connect(lambda: self.remove_payer(self.num_payers - 1))
         blayout = QHBoxLayout()
         cont = QWidget()
         blayout.addWidget(payersel)
@@ -88,12 +89,19 @@ class NewTransactionWindow(QWidget):
         cont.setLayout(blayout)
         self.num_payers += 1
         self.paycontlayout.insertWidget(len(self.paycontlayout), cont)
+        
+
+    def remove_payer(self, payernum):
+        self.num_payers -= 1
+        self.paycontlayout.takeAt(payernum)
+
 
     def add_debtor(self):
         debtorsel = QComboBox()
         debtoramt = QDoubleSpinBox()
         delbutton = QPushButton("Delete")
         delbutton.setFixedSize(100, 50)
+        delbutton.clicked.connect(lambda: self.remove_debtor(self.num_debtors - 1))
         blayout = QHBoxLayout()
         cont = QWidget()
         blayout.addWidget(debtorsel)
@@ -102,6 +110,10 @@ class NewTransactionWindow(QWidget):
         cont.setLayout(blayout)
         self.num_debtors += 1
         self.debtorcontlayout.insertWidget(len(self.debtorcontlayout), cont)
+
+    def remove_debtor(self, debtornum):
+        self.num_debtors -= 1
+        self.debtorcontlayout.takeAt(debtornum)
 
     def saveTransaction(self):
         transaction = classes.Transaction(self.transnamefield.text(), self.description.toPlainText())
