@@ -1,4 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QTableWidget, QTableWidgetItem, QGridLayout, QHeaderView, QVBoxLayout, QPushButton, QListWidget, QLabel, QLineEdit, QMainWindow, QScrollArea, QTextEdit, QAbstractItemView
+from PyQt5.QtWidgets import (QWidget, QTableWidget, QTableWidgetItem, QGridLayout, QHeaderView, QVBoxLayout, QPushButton, QListWidget, 
+                             QLabel, QLineEdit, QMainWindow, QScrollArea, QTextEdit, QAbstractItemView, QComboBox, QDoubleSpinBox , QHBoxLayout
+)
 from PyQt5.QtGui import QWindow
 from PyQt5.QtCore import Qt
 import classes
@@ -9,7 +11,7 @@ class NewTransactionWindow(QWidget):
         self.originalwindow = originalwindow
         self.resize(800, 500)
         self.setWindowTitle("Add a New Transaction to " + originalwindow.transEvent.name)
-        layout = QVBoxLayout()
+        self.tlayout = QVBoxLayout()
         namelabel = QLabel("Enter Transaction name")
         self.transnamefield = QLineEdit()
         desclabel = QLabel("Enter a description for transaction")
@@ -17,13 +19,41 @@ class NewTransactionWindow(QWidget):
         self.savebutton = QPushButton("Save")
         self.savebutton.clicked.connect(self.saveTransaction)
 
-        layout.addWidget(namelabel)
-        layout.addWidget(self.transnamefield)
-        layout.addWidget(desclabel)
-        layout.addWidget(self.description)
-        layout.addWidget(self.savebutton)
+        self.payersel = QComboBox()
+        self.payeramt = QDoubleSpinBox()
+        self.debtorsel = QComboBox()
+        self.debtoramt = QDoubleSpinBox()
 
-        self.setLayout(layout)
+        self.payerlabel = QLabel("Payers:")
+        self.payercontainer = QWidget()
+        self.debtorcontainer = QWidget()
+        self.blayoutp = QHBoxLayout()
+        self.blayoutp.addWidget(self.payersel)
+        self.blayoutp.addWidget(self.payeramt)
+        self.debtorlabel = QLabel("Debtors:")
+        self.blayoutd = QHBoxLayout()
+        self.blayoutd.addWidget(self.debtorsel)
+        self.blayoutd.addWidget(self.debtoramt)
+        self.payercontainer.setLayout(self.blayoutp)
+        self.debtorcontainer.setLayout(self.blayoutd)
+
+        self.newpayerbutton = QPushButton("Add a New Payer")
+
+        self.newdebtorbutton = QPushButton("Add a New Debtor")
+
+        self.tlayout.addWidget(namelabel)
+        self.tlayout.addWidget(self.transnamefield)
+        self.tlayout.addWidget(desclabel)
+        self.tlayout.addWidget(self.description)
+        self.tlayout.addWidget(self.payerlabel)
+        self.tlayout.addWidget(self.payercontainer)
+        self.tlayout.addWidget(self.newpayerbutton)
+        self.tlayout.addWidget(self.debtorlabel)
+        self.tlayout.addWidget(self.debtorcontainer)
+        self.tlayout.addWidget(self.newdebtorbutton)
+        self.tlayout.addWidget(self.savebutton)
+
+        self.setLayout(self.tlayout)
 
 
     def saveTransaction(self):
@@ -41,7 +71,7 @@ class TransactionMenu(QWidget):
         self.setWindowTitle(transaction.name + " Menu")
         self.transaction = transaction
 
-        layout = QVBoxLayout()
+        self.tlayout = QVBoxLayout()
 
         #TODO: add the transaction information so it can be viewed on this menu
         self.nameLabel = QLabel("Name: " + self.transaction.name)
@@ -67,13 +97,13 @@ class TransactionMenu(QWidget):
         self.deleventbutton = QPushButton("Delete Transaction")
         self.deleventbutton.clicked.connect(self.remove_transaction)
 
-        layout.addWidget(self.nameLabel)
-        layout.addWidget(self.descLabel)
-        layout.addWidget(self.debtorsTable)
-        layout.addWidget(self.setaspaidbutton)
-        layout.addWidget(self.editeventbutton)
-        layout.addWidget(self.deleventbutton)
-        self.setLayout(layout)
+        self.tlayout.addWidget(self.nameLabel)
+        self.tlayout.addWidget(self.descLabel)
+        self.tlayout.addWidget(self.debtorsTable)
+        self.tlayout.addWidget(self.setaspaidbutton)
+        self.tlayout.addWidget(self.editeventbutton)
+        self.tlayout.addWidget(self.deleventbutton)
+        self.setLayout(self.tlayout)
 
 
     def edit_transaction(self):
@@ -111,7 +141,7 @@ class EditTransactionWindow(QWidget):
         self.submitButton = QPushButton("Submit")
         self.submitButton.clicked.connect(lambda: self.originalWindow.submitTransactionEdit(self.transaction))
 
-        layout = QVBoxLayout()
+        self.tlayout = QVBoxLayout()
         gridLayout = QGridLayout()
 
         gridLayout.addWidget(self.nameLabel, 0, 0)
@@ -119,13 +149,13 @@ class EditTransactionWindow(QWidget):
         gridLayout.addWidget(self.descLabel, 1, 0)
         gridLayout.addWidget(self.descLineEdit, 1, 1)
 
-        layout.addLayout(gridLayout)
-        layout.addWidget(self.debtorsLabel)
-        layout.addWidget(self.addDebtorButton)
-        layout.addWidget(self.debtorsTable)
-        layout.addWidget(self.submitButton)
+        self.tlayout.addLayout(gridLayout)
+        self.tlayout.addWidget(self.debtorsLabel)
+        self.tlayout.addWidget(self.addDebtorButton)
+        self.tlayout.addWidget(self.debtorsTable)
+        self.tlayout.addWidget(self.submitButton)
 
-        self.setLayout(layout)
+        self.setLayout(self.tlayout)
 
         for i in range(len(self.transaction.debtors)):
             self.debtorsTable.setItem(i, 0, QTableWidgetItem(self.transaction.debtors[i][0]))
