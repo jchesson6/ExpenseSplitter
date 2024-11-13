@@ -19,10 +19,15 @@ class NewTransactionWindow(QWidget):
         self.savebutton = QPushButton("Save")
         self.savebutton.clicked.connect(self.saveTransaction)
 
+        self.num_payers = 1
+        self.num_debtors = 1
         self.payersel = QComboBox()
         self.payeramt = QDoubleSpinBox()
         self.debtorsel = QComboBox()
         self.debtoramt = QDoubleSpinBox()
+
+        self.num_payers = 1
+        self.num_debtors = 1
 
         for person in originalwindow.transEvent.people:
             self.payersel.addItem(person.name)
@@ -30,20 +35,30 @@ class NewTransactionWindow(QWidget):
 
         self.payerlabel = QLabel("Payers:")
         self.payercontainer = QWidget()
-        self.debtorcontainer = QWidget()
+        self.payerbutcont = QWidget()
+        self.paycontlayout = QVBoxLayout()
         self.blayoutp = QHBoxLayout()
         self.blayoutp.addWidget(self.payersel)
         self.blayoutp.addWidget(self.payeramt)
+        self.payerbutcont.setLayout(self.blayoutp)
+        self.paycontlayout.addWidget(self.payerbutcont)
+        self.payercontainer.setLayout(self.paycontlayout)
+
         self.debtorlabel = QLabel("Debtors:")
+        self.debtorcontainer = QWidget()
+        self.debtorbutcont = QWidget()
+        self.debtorcontlayout = QVBoxLayout()
         self.blayoutd = QHBoxLayout()
         self.blayoutd.addWidget(self.debtorsel)
         self.blayoutd.addWidget(self.debtoramt)
-        self.payercontainer.setLayout(self.blayoutp)
-        self.debtorcontainer.setLayout(self.blayoutd)
-
+        self.debtorbutcont.setLayout(self.blayoutd)
+        self.debtorcontlayout.addWidget(self.debtorbutcont)
+        self.debtorcontainer.setLayout(self.debtorcontlayout)
+        
         self.newpayerbutton = QPushButton("Add a New Payer")
-
+        self.newpayerbutton.clicked.connect(self.add_payer)
         self.newdebtorbutton = QPushButton("Add a New Debtor")
+        self.newdebtorbutton.clicked.connect(self.add_debtor)
 
         self.tlayout.addWidget(namelabel)
         self.tlayout.addWidget(self.transnamefield)
@@ -59,6 +74,28 @@ class NewTransactionWindow(QWidget):
 
         self.setLayout(self.tlayout)
 
+
+    def add_payer(self):
+        payersel = QComboBox()
+        payeramt = QDoubleSpinBox()
+        blayout = QHBoxLayout()
+        cont = QWidget()
+        blayout.addWidget(payersel)
+        blayout.addWidget(payeramt)
+        cont.setLayout(blayout)
+        self.num_payers += 1
+        self.paycontlayout.insertWidget(len(self.paycontlayout), cont)
+
+    def add_debtor(self):
+        debtorsel = QComboBox()
+        debtoramt = QDoubleSpinBox()
+        blayout = QHBoxLayout()
+        cont = QWidget()
+        blayout.addWidget(debtorsel)
+        blayout.addWidget(debtoramt)
+        cont.setLayout(blayout)
+        self.num_debtors += 1
+        self.debtorcontlayout.insertWidget(len(self.debtorcontlayout), cont)
 
     def saveTransaction(self):
         transaction = classes.Transaction(self.transnamefield.text(), self.description.toPlainText())
