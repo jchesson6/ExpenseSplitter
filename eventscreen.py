@@ -71,7 +71,7 @@ class EventTransactionsWindow(QWidget):
         super().__init__()
         self.transEvent = event
         self.originalwindow = originalwindow
-        self.resize(800, 500)
+        self.resize(1200, 800)
         self.setWindowTitle(event.name + " Menu")
 
         layout = QVBoxLayout()
@@ -80,6 +80,7 @@ class EventTransactionsWindow(QWidget):
         self.addtransbutton.clicked.connect(self.createNewTransactionWindow)
         self.editeventbutton = QPushButton("Edit Event")
         self.deleventbutton = QPushButton("Delete Event")
+        self.deleventbutton.setStyleSheet("background-color : red") 
         self.deleventbutton.clicked.connect(self.removeEvent)
         self.transactionlabel = QLabel("Transactions")
         self.transactionlabel.setAlignment(Qt.AlignHCenter)
@@ -92,9 +93,9 @@ class EventTransactionsWindow(QWidget):
 
         layout.addWidget(self.addtransbutton)
         layout.addWidget(self.editeventbutton)
-        layout.addWidget(self.deleventbutton)
         layout.addWidget(self.transactionlabel)
         layout.addWidget(self.transactionlist)
+        layout.addWidget(self.deleventbutton)
 
         self.setLayout(layout)
 
