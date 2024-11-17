@@ -1,11 +1,12 @@
-from PyQt5.QtWidgets import QApplication, QHeaderView, QTextEdit, QLabel, QLineEdit, QTableWidgetItem, QTableWidget, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QStackedWidget, QListWidget
+from PyQt5.QtWidgets import QApplication, QListWidgetItem, QHeaderView, QTextEdit, QLabel, QLineEdit, QTableWidgetItem, QTableWidget, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QStackedWidget, QListWidget
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QDoubleValidator
+from PyQt5.QtGui import QDoubleValidator, QColor
 import sys
 import os
 import classes, homescreen, accountscreen, eventscreen
 
 # TODO: Remember to write event/transacton.friend changes to the account.txt file
+
 
 class InfoWindow(QMainWindow):
     def __init__(self, title):
@@ -15,11 +16,12 @@ class InfoWindow(QMainWindow):
     def set_size(self, length, width):
         self.resize(length,width)
 
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        ## create variables
+        # create variables
         self.event_list = [] # should probably turn this into a dictionary
         self.event_names = []
 
@@ -64,30 +66,53 @@ class MainWindow(QMainWindow):
         mainWidget = QWidget()
         mainWidget.setLayout(mainLayout)
 
-        # Widget for main app and login screen
+        # Widget for main app and register screen
         stackedContainer = QStackedWidget()
 
-        # Create loginscreen
-        loginLayout = QVBoxLayout()
+        # Create registerscreen
+        registerLayout = QVBoxLayout()
         usernameLabel = QLabel("Username")
         usernameLabel.setAlignment(Qt.AlignHCenter)
         usernameBox = QLineEdit()
+        passwordLabel = QLabel("Password")
+        passwordLabel.setAlignment(Qt.AlignHCenter)
+        passwordBox = QLineEdit()
+        submitRegister = QPushButton("Register")
+
+        registerLayout.addWidget(usernameLabel)
+        registerLayout.addWidget(usernameBox)
+        registerLayout.addWidget(passwordLabel)
+        registerLayout.addWidget(passwordBox)
+        registerLayout.addWidget(submitRegister)
+
+        registerWidget = QWidget()
+        registerWidget.setLayout(registerLayout)
+
+        loginlayout = QVBoxLayout()
+        passwordLabel2 = QLabel("Enter Password")
+        passwordLabel2.setAlignment(Qt.AlignHCenter)
+        passwordBox2 = QLineEdit()
         submitLogin = QPushButton("Login")
 
-        loginLayout.addWidget(usernameLabel)
-        loginLayout.addWidget(usernameBox)
-        loginLayout.addWidget(submitLogin)
-
+        loginlayout.addWidget(passwordLabel2)
+        loginlayout.addWidget(passwordBox2)
+        loginlayout.addWidget(submitLogin)
         loginWidget = QWidget()
-        loginWidget.setLayout(loginLayout)
+        loginWidget.setLayout(loginlayout)
 
         stackedContainer.addWidget(mainWidget)
+        stackedContainer.addWidget(registerWidget)
         stackedContainer.addWidget(loginWidget)
-
-        submitLogin.clicked.connect(
+        stackedContainer.setCurrentWidget(registerWidget)
+        submitRegister.clicked.connect(
             lambda: (
                 stackedContainer.setCurrentWidget(mainWidget),
-                self.login(usernameBox.text())
+                self.register(usernameBox.text(), passwordBox.text())
+            )
+        )
+        submitLogin.clicked.connect(
+            lambda: (
+                self.verifyPassword(passwordBox2.text(), stackedContainer, mainWidget)
             )
         )
 
@@ -98,30 +123,44 @@ class MainWindow(QMainWindow):
         self.stackedWidget.setCurrentWidget(self.homeScreen)
 
         if not os.path.isfile("account.txt"):
-            stackedContainer.setCurrentWidget(loginWidget)
+            stackedContainer.setCurrentWidget(registerWidget)
         else:
             self.loadAccountData()
-            stackedContainer.setCurrentWidget(mainWidget)
+            stackedContainer.setCurrentWidget(loginWidget)
+
+    def verifyPassword(self, password, stackedWidget, targetWidget):
+        if (password == self.account.password):
+            stackedWidget.setCurrentWidget(targetWidget)
 
     # TODO: Find a better way to store data in the file
     # Maybe json? and use pythons builtin json lib
     # Or find a way to directly load and store python class data
     def loadAccountData(self):
-        
+
         self.account = classes.Account.load()
         self.accDetailsScreen.load_account(self.account)
         self.homeScreen.updateList(self.account)
 
+        print(self.account.events)
+
         for event in self.account.events:
-            self.eventScreen.addEventtoTable(event)
+            if not self.account.events[event].is_complete:
+                item = QListWidgetItem(event)
+                item.setBackground(QColor(0xFF0000))
+                item.setForeground(QColor(0xFFFFFF))
+                self.eventScreen.addEventtoTable(item)
+            else:
+                item = QListWidgetItem(event)
+                item.setBackground(QColor(0x00FF00))
+                self.eventScreen.addEventtoTable(item)
 
         print(f"Loaded account: {self.account.username}")
-        
 
-    def login(self, username):
+
+    def register(self, username, password):
         dataFile = open("account.txt", "w+")
         dataFile.write("Username: " + username + "\n")
-        self.account = classes.Account(username)
+        self.account = classes.Account(username, password)
         self.accDetailsScreen.load_account(self.account)
         self.account.save()
         print(f"Created account: {username}")

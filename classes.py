@@ -3,7 +3,7 @@ in the event class but there are transactions that can also be added after the e
 Transactions would be created in a menu where the user enters the payer, the debtors, the total amount of the
 transaction, the individual amounts owed by the debtors and a description of the transaction to identify it.
 The account will have to hold information about the amounts owed to and by the user.
-The new friend class will contain the amounts owed to and by friends that the user adds to the app. """
+The ne  friend class will contain the amounts owed to and by friends that the user adds to the app. """
 
 import pickle
 import os
@@ -11,13 +11,13 @@ import os
 
 class Event:
 
-
     def __init__(self, name):
         self.name = name
         self.transactions = {}
         self.people = []
         self.num_transactions = 0
         self.num_people = 0
+        self.is_complete = False
 
     def __str__(self):
         return f'Event name: {self.name}'
@@ -44,12 +44,11 @@ class Transaction:
         self.description = description
         #self.total_paid = 0
         #self.payer = payer
-        self.isPaid = False
         self.debtors = []
 
     def add_debtor(self, debtor):
         self.debtors.append(debtor)
-        
+
     def mark_as_paid(self):
         self.isPaid = True
 
@@ -58,8 +57,10 @@ class Transaction:
 
 class Account:
 
-    def __init__(self, username):
+    def __init__(self, username, password):
         self.username = username
+        # In a real app it would not be stored like this
+        self.password = password
         self.displayName = " "
         self.events = {}
         self.friends = {}
@@ -88,7 +89,6 @@ class Account:
         self.num_events = len(self.events)
         self.save()
 
-
     def add_event(self, event):
         self.events[event.name] = event
         self.num_events = len(self.events)
@@ -102,7 +102,6 @@ class Account:
     def load():
         with open('account.pkl', 'rb') as accfile:
             return pickle.load(accfile)
-
 
     def deleteAcc(self):
         os.remove('account.pkl')

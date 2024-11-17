@@ -3,6 +3,7 @@ from PyQt5.QtGui import QWindow
 from PyQt5.QtCore import Qt
 import classes
 
+
 class NewTransactionWindow(QWidget):
     def __init__(self, originalwindow):
         super().__init__()
@@ -24,7 +25,6 @@ class NewTransactionWindow(QWidget):
         layout.addWidget(self.savebutton)
 
         self.setLayout(layout)
-
 
     def saveTransaction(self):
         transaction = classes.Transaction(self.transnamefield.text(), self.description.toPlainText())
@@ -57,11 +57,6 @@ class TransactionMenu(QWidget):
 
         self.debtorsTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
-        self.setaspaidbutton = QPushButton("Mark As Paid")
-        self.setaspaidbutton.clicked.connect(lambda: (
-            self.originalwindow.markTransactionAsPaid(self.transaction)
-        ))
-
         self.editeventbutton = QPushButton("Edit Transaction")
         self.editeventbutton.clicked.connect(self.edit_transaction)
         self.deleventbutton = QPushButton("Delete Transaction")
@@ -70,7 +65,6 @@ class TransactionMenu(QWidget):
         layout.addWidget(self.nameLabel)
         layout.addWidget(self.descLabel)
         layout.addWidget(self.debtorsTable)
-        layout.addWidget(self.setaspaidbutton)
         layout.addWidget(self.editeventbutton)
         layout.addWidget(self.deleventbutton)
         self.setLayout(layout)
