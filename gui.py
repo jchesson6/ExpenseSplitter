@@ -92,7 +92,9 @@ class MainWindow(QMainWindow):
         passwordLabel2 = QLabel("Enter Password")
         passwordLabel2.setAlignment(Qt.AlignHCenter)
         passwordBox2 = QLineEdit()
+        passwordBox2.setEchoMode(QLineEdit.Password)
         submitLogin = QPushButton("Login")
+        passwordBox2.returnPressed.connect(submitLogin.click)
 
         loginlayout.addWidget(passwordLabel2)
         loginlayout.addWidget(passwordBox2)
@@ -140,8 +142,6 @@ class MainWindow(QMainWindow):
         self.account = classes.Account.load()
         self.accDetailsScreen.load_account(self.account)
         self.homeScreen.updateList(self.account)
-
-        print(self.account.events)
 
         for event in self.account.events:
             if not self.account.events[event].is_complete:

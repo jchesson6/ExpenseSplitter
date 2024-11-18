@@ -43,14 +43,32 @@ class Transaction:
         self.name = name
         self.description = description
         #self.total_paid = 0
-        #self.payer = payer
-        self.debtors = []
+        self.payers = {}
+        self.num_payers = 0
+        self.debtors = {}
+        self.num_debtors = 0
 
-    def add_debtor(self, debtor):
-        self.debtors.append(debtor)
+    def add_payer(self, payer, amount):
+        self.payers[payer] = amount
+        self.num_payers = len(self.payers)
+
+    def remove_payer(self, payer):
+        del self.payers[payer]
+        self.num_payers = len(self.payers)
+
+    def add_debtor(self, debtor, amount):
+        self.debtors[debtor] = amount
+        self.num_debtors = len(self.debtors)
+
+    def remove_debtor(self, debtor):
+        del self.debtors[debtor]
+        self.num_debtors = len(self.debtors)
 
     def mark_as_paid(self):
         self.isPaid = True
+
+    def __str__(self):
+        return f"Transaction: {self.name}\nPayers: {self.payers}\nDebtors: {self.debtors}"
 
     # need to look into adding iterator mechanics __iter__() and __next__()
 
