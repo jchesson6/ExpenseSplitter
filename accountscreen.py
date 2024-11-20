@@ -1,9 +1,24 @@
+"""
+accountscreen.py
+
+This file contains the account screen and associated widgets
+"""
+
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QLineEdit
 from PyQt5.QtCore import Qt
 
+
 # not sure if we should allow username to be changed since you would have to reset the account login
 class editAccWindow(QWidget):
+    """
+    This class is the edit account screen that allows users to
+    change the display name of the account
+    """
+
     def __init__(self, originalwindow, name):
+        """
+        Initialize the window with the parent window and the current display name
+        """
         super().__init__()
 
         layout = QVBoxLayout()
@@ -12,25 +27,37 @@ class editAccWindow(QWidget):
         self.savebutton = QPushButton("Save")
         self.savebutton.clicked.connect(lambda: self.set_acc_name(originalwindow, self.displaynamefield.text()))
 
-        layout.addWidget(self.desc) 
+        layout.addWidget(self.desc)
         layout.addWidget(self.displaynamefield)
         layout.addWidget(self.savebutton)
         self.setLayout(layout)
 
-
     def set_acc_name(self, originalwindow, name):
+        """
+        Set the accounts name
+        """
         originalwindow.set_acc_name(name)
         self.close()
 
 
 class AccountScreen(QWidget):
-    
+    """
+    This class is the account screen that displays account information
+    and an option to edit the account
+    """
+
     def __init__(self, originalwindow):
+        """
+        Create the screen with a reference to the parent window
+        """
         self.originalwindow = originalwindow
         super().__init__()
         self.init_gui()
 
     def init_gui(self):
+        """
+        Initialize the widgets on the screen and link functions to events
+        """
         layout = QVBoxLayout()
         self.label0 = QLabel("{Username}")
         self.label1 = QLabel("{DisplayName}")
@@ -60,22 +87,34 @@ class AccountScreen(QWidget):
         self.setLayout(layout)
 
     def load_account(self, account):
+        """
+        populate the screen with account data
+        """
         self.label0.setText("Username: " + account.username)
         self.label1.setText("Display Name: " + account.displayName)
         self.label2.setText("Number of friends: " + str(account.num_friends))
         self.label3.setText("Total Owed to Other Account: " + str(account.amt_owed_total))
 
     def createEditAccWindow(self):
+        """
+        Function to create the edit account window
+        """
         self.editAccWin = editAccWindow(self, self.originalwindow.account.displayName)
         self.editAccWin.show()
 
     def set_acc_name(self, name):
+        """
+        Function to set then display name of the account
+        """
         self.originalwindow.account.displayName = name
         self.originalwindow.account.save()
         self.load_account(self.originalwindow.account)
 
     def delete_account(self):
-        #TODO: add a confirmation pop up box
+        """
+        Function to delete the account
+        """
+        # TODO: add a confirmation pop up box
         self.originalwindow.account.deleteAcc()
         self.originalwindow.close()
         self.close()
