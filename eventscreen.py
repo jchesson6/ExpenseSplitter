@@ -80,6 +80,7 @@ class EventScreen(QWidget):
     def addEventtoTable(self, event):
         """
         Add an event to the table to be displayed
+        The default bg is red to mark the event as incomplete
         """
         item = QListWidgetItem(event)
         item.setBackground(QColor(0xFF0000))
@@ -181,11 +182,13 @@ class EventTransactionsWindow(QWidget):
         desc = self.editTransWindow.descLineEdit.text()
         debtorData = []
         rows = self.editTransWindow.debtorsTable.rowCount()
+        # Gather all of the data from the table
         for r in range(rows):
             item = ["", -999]
             debtorname = self.editTransWindow.debtorsTable.item(r, 0)
             ammount = self.editTransWindow.debtorsTable.item(r, 1)
 
+            # Validate the row
             if debtorname and debtorname.text():
                 item[0] = debtorname.text()
             if ammount and ammount.text():
@@ -201,10 +204,12 @@ class EventTransactionsWindow(QWidget):
             else:
                 print("Invalid debtor. Not adding")
 
+        # Create a new transaction
         newTransaction = classes.Transaction(name, desc)
         for i in range(len(debtorData)):
             newTransaction.add_debtor(debtorData[i])
 
+        # Replace the old transaction with the new one
         self.removeTransaction(oldTransaction)
         self.addTransaction(newTransaction)
         self.editTransWindow.close()
