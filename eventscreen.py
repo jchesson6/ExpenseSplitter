@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout, QListWidgetItem, QVBoxLayout, QTableWidget, QPushButton, QListWidget, QLabel, QLineEdit, QMainWindow, QScrollArea
+from PyQt5.QtWidgets import (QWidget, QGridLayout, QListWidgetItem, QVBoxLayout, QTableWidget, 
+                             QPushButton, QListWidget, QLabel, QLineEdit, QMessageBox, QScrollArea)
 from PyQt5.QtGui import QWindow, QColor
 from PyQt5.QtCore import Qt
 import classes
@@ -12,8 +13,8 @@ class EventScreen(QWidget):
 
     def __init__(self, originalwindow):
         super().__init__()
-        self.init_gui()
         self.originalwindow = originalwindow
+        self.init_gui()
 
     def init_gui(self):
         self.wlayout = QVBoxLayout()
@@ -104,8 +105,13 @@ class EventTransactionsWindow(QWidget):
         self.close()
 
     def createNewTransactionWindow(self):
-        self.newTransWin = transactions.NewTransactionWindow(self)
-        self.newTransWin.show()
+        if self.originalwindow.originalwindow.account.displayName.isspace():
+            nameerror = QMessageBox.critical(self, "No Display Name", "Set a display name in account settings before adding a transaction",
+                                             buttons=QMessageBox.Ok)
+        else:
+            self.newTransWin = transactions.NewTransactionWindow(self)
+            self.newTransWin.show()
+    
 
     def createTransactionMenu(self, item):
         selTrans = self.transEvent.transactions[item.text()]

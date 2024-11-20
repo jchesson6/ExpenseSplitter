@@ -38,7 +38,7 @@ class AccountScreen(QWidget):
         self.label3 = QLabel("{TotalAmmountOwed}")
         buttoncontainer = QWidget()
         buttonlayout = QHBoxLayout()
-        self.editaccbutton = QPushButton("Edit Account")
+        self.editaccbutton = QPushButton("Set Display Name")
         self.delaccbutton = QPushButton("Delete Account")
 
         self.editaccbutton.clicked.connect(lambda: self.createEditAccWindow())

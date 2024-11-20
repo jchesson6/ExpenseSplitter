@@ -36,6 +36,10 @@ class NewTransactionWindow(QWidget):
         self.num_payers = 1
         self.num_debtors = 1
 
+        # add user to list of payers and debtors
+        self.payersel.addItem(originalwindow.originalwindow.originalwindow.account.displayName)
+        self.debtorsel.addItem(originalwindow.originalwindow.originalwindow.account.displayName)
+
         for person in originalwindow.transEvent.people:
             self.payersel.addItem(person.name)
             self.debtorsel.addItem(person.name)
@@ -164,12 +168,15 @@ class NewTransactionWindow(QWidget):
         self.originalwindow.addTransaction(transaction)
         self.close()
 
+    # def load_transaction(self, transaction):
+
+
 
 class TransactionMenu(QWidget):
     def __init__(self, originalwindow, transaction):
         super().__init__()
         self.originalwindow = originalwindow
-        self.resize(800, 500)
+        self.resize(800, 800)
         self.setWindowTitle(transaction.name + " Menu")
         self.transaction = transaction
 
@@ -180,12 +187,21 @@ class TransactionMenu(QWidget):
         self.descLabel = QLabel("Description: " + self.transaction.description)
         self.debtorsTable = QTableWidget(len(self.transaction.debtors), 2)
 
-        self.debtorsTable.setHorizontalHeaderLabels(["Debtor", "Ammount"])
+        payerlabel = QLabel("Payer(s):")
+        payerlist = []
+        for payer in transaction.payers:
+            label = QLabel(payer + " paid " + str(transaction.payers[payer]))
+            payerlist.append(label)
+
+        self.debtorsTable.setHorizontalHeaderLabels(["Debtor", "Owes"])
         self.debtorsTable.horizontalHeader().setStretchLastSection(True)
         self.debtorsTable.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        for i in range(len(self.transaction.debtors)):
-            self.debtorsTable.setItem(i, 0, QTableWidgetItem(self.transaction.debtors[i][0]))
-            self.debtorsTable.setItem(i, 1, QTableWidgetItem(str(self.transaction.debtors[i][1])))
+        
+        i = 0
+        for debtor in transaction.debtors:
+            self.debtorsTable.setItem(i, 0, QTableWidgetItem(debtor))
+            self.debtorsTable.setItem(i, 1, QTableWidgetItem(str(self.transaction.debtors[debtor])))
+            i += 1
 
         self.debtorsTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
@@ -196,6 +212,9 @@ class TransactionMenu(QWidget):
 
         self.tlayout.addWidget(self.nameLabel)
         self.tlayout.addWidget(self.descLabel)
+        self.tlayout.addWidget(payerlabel)
+        for label in payerlist:
+            self.tlayout.addWidget(label)
         self.tlayout.addWidget(self.debtorsTable)
         self.tlayout.addWidget(self.editeventbutton)
         self.tlayout.addWidget(self.deleventbutton)
