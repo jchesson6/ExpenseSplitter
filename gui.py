@@ -21,6 +21,9 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        # Create account so the close callback has a value to check
+        self.account = None
+
         # create variables
         self.event_list = [] # should probably turn this into a dictionary
         self.event_names = []
@@ -156,7 +159,6 @@ class MainWindow(QMainWindow):
 
         print(f"Loaded account: {self.account.username}")
 
-
     def register(self, username, password):
         dataFile = open("account.txt", "w+")
         dataFile.write("Username: " + username + "\n")
@@ -238,16 +240,12 @@ class MainWindow(QMainWindow):
         screen.setLayout(layout)
         return screen
 
-
     def addEvent(self):
         curevent = classes.Event(self.eventnameLineEdit.text())
         self.event_list.append(curevent)
         self.event_names.append(curevent.name)
         self.eventScreen.update()
         self.NewEventWindow.close()
-
-
-
 
     # Function used to create a transaction when the submit
     # button is pressed on the new transaction screen
@@ -257,9 +255,12 @@ class MainWindow(QMainWindow):
         print(ammount)
         print(comments)
 
-
     def closeEvent(self, event):
-        self.account.save()
+        """
+        Function to save the account when the app closes
+        """
+        if self.account is not None:
+            self.account.save()
 
 
 if __name__ == "__main__":

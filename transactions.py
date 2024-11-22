@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import (QWidget, QTableWidget, QTableWidgetItem, QGridLayout, QHeaderView, QVBoxLayout, QPushButton, QListWidget, 
+from PyQt5.QtWidgets import (QWidget, QTableWidget, QTableWidgetItem, QGridLayout, QHeaderView, QVBoxLayout, QPushButton, QListWidget,
                              QLabel, QLineEdit, QMainWindow, QScrollArea, QTextEdit, QAbstractItemView, QComboBox, QHBoxLayout,
-                             QSizePolicy
+                             QSizePolicy, QMessageBox
 )
 from PyQt5.QtGui import QWindow, QDoubleValidator
 from PyQt5.QtCore import Qt
@@ -67,7 +67,7 @@ class NewTransactionWindow(QWidget):
         self.debtorbutcont.setLayout(self.blayoutd)
         self.debtorcontlayout.addWidget(self.debtorbutcont)
         self.debtorcontainer.setLayout(self.debtorcontlayout)
-        
+
         self.newpayerbutton = QPushButton("Add a New Payer")
         self.newpayerbutton.clicked.connect(self.add_payer)
         self.newdebtorbutton = QPushButton("Add a New Debtor")
@@ -86,7 +86,6 @@ class NewTransactionWindow(QWidget):
         self.tlayout.addWidget(self.savebutton)
 
         self.setLayout(self.tlayout)
-
 
     def add_payer(self):
         payersel = QComboBox()
@@ -107,12 +106,10 @@ class NewTransactionWindow(QWidget):
         cont.setLayout(blayout)
         self.num_payers += 1
         self.paycontlayout.insertWidget(len(self.paycontlayout), cont)
-        
 
     def remove_payer(self, payernum):
         self.num_payers -= 1
         self.paycontlayout.takeAt(payernum)
-
 
     def add_debtor(self):
         debtorsel = QComboBox()
@@ -151,25 +148,32 @@ class NewTransactionWindow(QWidget):
             for combobox in widget.findChildren(QComboBox):
                 payer = combobox.currentText()
             for lineedit in widget.findChildren(QLineEdit):
-                amt = float(lineedit.text())
+                if lineedit.text() != "":
+                    amt = float(lineedit.text())
+                else:
+                    error = QMessageBox.critical(self, "No Value", "Enter a value for the payer before saving", buttons=QMessageBox.Ok)
+                    return
             transaction.add_payer(payer, amt)
 
-        for item in debwidgets:     
-            widget = item.widget()      
+        for item in debwidgets:
+            widget = item.widget()
             debtor = ""
             amt = 0
             for combobox in widget.findChildren(QComboBox):
                 debtor = combobox.currentText()
             for lineedit in widget.findChildren(QLineEdit):
-                amt = float(lineedit.text())
+                if lineedit.text() != "":
+                    amt = float(lineedit.text())
+                else:
+                    error = QMessageBox.critical(self, "No Value", "Enter a value for the debtor before saving", buttons=QMessageBox.Ok)
+                    return
             transaction.add_debtor(debtor,amt)
-        
+
         print(transaction)
         self.originalwindow.addTransaction(transaction)
         self.close()
 
     # def load_transaction(self, transaction):
-
 
 
 class TransactionMenu(QWidget):
@@ -182,7 +186,7 @@ class TransactionMenu(QWidget):
 
         self.tlayout = QVBoxLayout()
 
-        #TODO: add the transaction information so it can be viewed on this menu
+        # TODO: add the transaction information so it can be viewed on this menu
         self.nameLabel = QLabel("Name: " + self.transaction.name)
         self.descLabel = QLabel("Description: " + self.transaction.description)
         self.debtorsTable = QTableWidget(len(self.transaction.debtors), 2)
@@ -196,7 +200,7 @@ class TransactionMenu(QWidget):
         self.debtorsTable.setHorizontalHeaderLabels(["Debtor", "Owes"])
         self.debtorsTable.horizontalHeader().setStretchLastSection(True)
         self.debtorsTable.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        
+
         i = 0
         for debtor in transaction.debtors:
             self.debtorsTable.setItem(i, 0, QTableWidgetItem(debtor))
@@ -272,6 +276,6 @@ class EditTransactionWindow(QWidget):
 
         self.setLayout(self.tlayout)
 
-        for i in range(len(self.transaction.debtors)):
-            self.debtorsTable.setItem(i, 0, QTableWidgetItem(self.transaction.debtors[i][0]))
-            self.debtorsTable.setItem(i, 1, QTableWidgetItem(str(self.transaction.debtors[i][1])))
+        for i, debtor in enumerate(self.transaction.debtors):
+            self.debtorsTable.setItem(i, 0, QTableWidgetItem(debtor))
+            self.debtorsTable.setItem(i, 1, QTableWidgetItem(str(self.transaction.debtors[debtor])))
