@@ -1,3 +1,9 @@
+"""
+transactions.py
+
+This file contains all functionalitty for interaction with transactions
+"""
+
 from PyQt5.QtWidgets import (QWidget, QTableWidget, QTableWidgetItem, QGridLayout, QHeaderView, QVBoxLayout, QPushButton, QListWidget,
                              QLabel, QLineEdit, QMainWindow, QScrollArea, QTextEdit, QAbstractItemView, QComboBox, QHBoxLayout,
                              QSizePolicy, QMessageBox
@@ -8,6 +14,9 @@ import classes
 
 
 class NewTransactionWindow(QWidget):
+    """
+    Window to create a new transaction in an event
+    """
     def __init__(self, originalwindow):
         super().__init__()
         self.originalwindow = originalwindow
@@ -22,6 +31,7 @@ class NewTransactionWindow(QWidget):
         self.savebutton = QPushButton("Save")
         self.savebutton.clicked.connect(self.saveTransaction)
 
+        # Create empty deptor and payer widgets 
         self.validator = QDoubleValidator()
         self.num_payers = 1
         self.num_debtors = 1
@@ -44,6 +54,7 @@ class NewTransactionWindow(QWidget):
             self.payersel.addItem(person.name)
             self.debtorsel.addItem(person.name)
 
+        # Create list of payers
         self.payerlabel = QLabel("Payers:")
         self.payercontainer = QWidget()
         self.payercontainer.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
@@ -56,6 +67,7 @@ class NewTransactionWindow(QWidget):
         self.paycontlayout.addWidget(self.payerbutcont)
         self.payercontainer.setLayout(self.paycontlayout)
 
+        # Create list of debtors
         self.debtorlabel = QLabel("Debtors:")
         self.debtorcontainer = QWidget()
         self.debtorcontainer.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
@@ -68,11 +80,13 @@ class NewTransactionWindow(QWidget):
         self.debtorcontlayout.addWidget(self.debtorbutcont)
         self.debtorcontainer.setLayout(self.debtorcontlayout)
 
+        # Buttons to add debtors and payers
         self.newpayerbutton = QPushButton("Add a New Payer")
         self.newpayerbutton.clicked.connect(self.add_payer)
         self.newdebtorbutton = QPushButton("Add a New Debtor")
         self.newdebtorbutton.clicked.connect(self.add_debtor)
 
+        # Create window layout
         self.tlayout.addWidget(namelabel)
         self.tlayout.addWidget(self.transnamefield)
         self.tlayout.addWidget(desclabel)
@@ -88,6 +102,9 @@ class NewTransactionWindow(QWidget):
         self.setLayout(self.tlayout)
 
     def add_payer(self):
+        """
+        Add a payer to the transaction
+        """
         payersel = QComboBox()
         for person in self.originalwindow.transEvent.people:
             payersel.addItem(person.name)
@@ -108,10 +125,16 @@ class NewTransactionWindow(QWidget):
         self.paycontlayout.insertWidget(len(self.paycontlayout), cont)
 
     def remove_payer(self, payernum):
+        """
+        Remove a payer
+        """
         self.num_payers -= 1
         self.paycontlayout.takeAt(payernum)
 
     def add_debtor(self):
+        """
+        Add a debtor to the transaction
+        """
         debtorsel = QComboBox()
         for person in self.originalwindow.transEvent.people:
             debtorsel.addItem(person.name)
@@ -131,16 +154,23 @@ class NewTransactionWindow(QWidget):
         self.debtorcontlayout.insertWidget(len(self.debtorcontlayout), cont)
 
     def remove_debtor(self, debtornum):
+        """
+        Remove a debtor
+        """
         self.num_debtors -= 1
         self.debtorcontlayout.takeAt(debtornum)
 
     def saveTransaction(self):
+        """
+        Save the transaction in the parent event
+        """
         transaction = classes.Transaction(self.transnamefield.text(), self.description.toPlainText())
 
         # loop through payer field items
         paywidgets = (self.paycontlayout.itemAt(i) for i in range(self.paycontlayout.count()))
         debwidgets = (self.debtorcontlayout.itemAt(i) for i in range(self.debtorcontlayout.count()))
 
+        # Get all payer widgets and extract data
         for item in paywidgets:
             widget = item.widget()
             payer = ""
@@ -155,6 +185,7 @@ class NewTransactionWindow(QWidget):
                     return
             transaction.add_payer(payer, amt)
 
+        # Get all debtor widgets and extract data
         for item in debwidgets:
             widget = item.widget()
             debtor = ""
@@ -177,7 +208,13 @@ class NewTransactionWindow(QWidget):
 
 
 class TransactionMenu(QWidget):
+    """
+    The menu that shows when a transaction is viewed
+    """
     def __init__(self, originalwindow, transaction):
+        """
+        Initialize widgets and transaction info
+        """
         super().__init__()
         self.originalwindow = originalwindow
         self.resize(800, 800)
@@ -186,11 +223,11 @@ class TransactionMenu(QWidget):
 
         self.tlayout = QVBoxLayout()
 
-        # TODO: add the transaction information so it can be viewed on this menu
         self.nameLabel = QLabel("Name: " + self.transaction.name)
         self.descLabel = QLabel("Description: " + self.transaction.description)
         self.debtorsTable = QTableWidget(len(self.transaction.debtors), 2)
 
+        # Populate payers list
         payerlabel = QLabel("Payer(s):")
         payerlist = []
         for payer in transaction.payers:
@@ -201,6 +238,7 @@ class TransactionMenu(QWidget):
         self.debtorsTable.horizontalHeader().setStretchLastSection(True)
         self.debtorsTable.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
+        # Populate debtors table
         i = 0
         for debtor in transaction.debtors:
             self.debtorsTable.setItem(i, 0, QTableWidgetItem(debtor))
@@ -208,12 +246,13 @@ class TransactionMenu(QWidget):
             i += 1
 
         self.debtorsTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
-
+        # Create edit and delete buttons
         self.editeventbutton = QPushButton("Edit Transaction")
         self.editeventbutton.clicked.connect(self.edit_transaction)
         self.deleventbutton = QPushButton("Delete Transaction")
         self.deleventbutton.clicked.connect(self.remove_transaction)
 
+        # Set layout
         self.tlayout.addWidget(self.nameLabel)
         self.tlayout.addWidget(self.descLabel)
         self.tlayout.addWidget(payerlabel)
@@ -225,22 +264,37 @@ class TransactionMenu(QWidget):
         self.setLayout(self.tlayout)
 
     def edit_transaction(self):
+        """
+        Edit the transaction
+        """
         self.originalwindow.editTransaction(self.transaction)
         self.close()
 
     def remove_transaction(self):
+        """
+        Delete the transaction
+        """
         self.originalwindow.removeTransaction(self.transaction)
         self.close()
 
 
 class EditTransactionWindow(QWidget):
+    """
+    Window to edit transaction details
+    """
     def __init__(self, originalWindow, transaction):
+        """
+        Set the parent window the create the gui
+        """
         super().__init__()
         self.originalwindow = originalWindow
         self.transaction = transaction
         self.initGui()
 
     def initGui(self):
+        """
+        Create a window similar to the new transaction window but will details filled out
+        """
         self.resize(1000, 600)
         self.setWindowTitle("Add a New Transaction to " + self.originalwindow.transEvent.name)
         self.tlayout = QVBoxLayout()
@@ -263,6 +317,7 @@ class EditTransactionWindow(QWidget):
         self.paycontlayout = QVBoxLayout()
         self.payercontainer.setLayout(self.paycontlayout)
 
+        # Create payer list
         for i, payer in enumerate(self.transaction.payers):
             payersel = QComboBox()
             payersel.addItem(self.originalwindow.originalwindow.originalwindow.account.displayName)
@@ -293,6 +348,7 @@ class EditTransactionWindow(QWidget):
         self.debtorcontlayout = QVBoxLayout()
         self.debtorcontainer.setLayout(self.debtorcontlayout)
 
+        # Create debtor list
         for i, debtor in enumerate(self.transaction.debtors): 
             debtorsel = QComboBox()
             debtorsel.addItem(self.originalwindow.originalwindow.originalwindow.account.displayName)
@@ -320,6 +376,7 @@ class EditTransactionWindow(QWidget):
         self.newdebtorbutton = QPushButton("Add a New Debtor")
         self.newdebtorbutton.clicked.connect(self.add_debtor)
 
+        # Set layout
         self.tlayout.addWidget(namelabel)
         self.tlayout.addWidget(self.transnamefield)
         self.tlayout.addWidget(desclabel)
@@ -335,12 +392,16 @@ class EditTransactionWindow(QWidget):
         self.setLayout(self.tlayout)
 
     def saveTransaction(self):
+        """
+        Delete the old transaction and save the current one
+        """
         transaction = classes.Transaction(self.transnamefield.text(), self.description.toPlainText())
 
         # loop through payer field items
         paywidgets = (self.paycontlayout.itemAt(i) for i in range(self.paycontlayout.count()))
         debwidgets = (self.debtorcontlayout.itemAt(i) for i in range(self.debtorcontlayout.count()))
 
+        # Get all data for payers
         for item in paywidgets:
             widget = item.widget()
             payer = ""
@@ -355,6 +416,7 @@ class EditTransactionWindow(QWidget):
                     return
             transaction.add_payer(payer, amt)
 
+        # Get all data for debtors
         for item in debwidgets:
             widget = item.widget()
             debtor = ""
@@ -375,6 +437,9 @@ class EditTransactionWindow(QWidget):
         self.close()
 
     def add_payer(self):
+        """
+        Add a payer to the transaction
+        """
         payersel = QComboBox()
         for person in self.originalwindow.transEvent.people:
             payersel.addItem(person.name)
@@ -395,6 +460,9 @@ class EditTransactionWindow(QWidget):
         self.paycontlayout.insertWidget(len(self.paycontlayout), cont)
 
     def add_debtor(self):
+        """
+        Add a debtor to the transaction
+        """
         debtorsel = QComboBox()
         for person in self.originalwindow.transEvent.people:
             debtorsel.addItem(person.name)
@@ -414,11 +482,17 @@ class EditTransactionWindow(QWidget):
         self.debtorcontlayout.insertWidget(len(self.debtorcontlayout), cont)
 
     def remove_debtor(self, debtornum):
+        """
+        Remove a debtor
+        """
         if debtornum != 0:
             self.num_debtors -= 1
             self.debtorcontlayout.takeAt(debtornum)
 
     def remove_payer(self, payernum):
+        """
+        Remove a payer
+        """
         if payernum != 0:
             self.num_payers -= 1
             self.paycontlayout.takeAt(payernum)

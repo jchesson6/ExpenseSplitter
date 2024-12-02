@@ -1,3 +1,9 @@
+"""
+gui.py
+
+This file contains the main function and defines the main windows behavior
+"""
+
 from PyQt5.QtWidgets import QApplication, QListWidgetItem, QHeaderView, QTextEdit, QLabel, QLineEdit, QTableWidgetItem, QTableWidget, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QStackedWidget, QListWidget
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator, QColor
@@ -7,18 +13,30 @@ import classes, homescreen, accountscreen, eventscreen
 
 # TODO: Remember to write event/transacton.friend changes to the account.txt file
 
-
 class InfoWindow(QMainWindow):
+    """
+    This class is a simple resizeable blak window
+    """
     def __init__(self, title):
         super().__init__()
         self.setWindowTitle(title)
 
     def set_size(self, length, width):
+        """
+        Resize the window
+        """
         self.resize(length,width)
 
 
 class MainWindow(QMainWindow):
+    """
+    The main window for the applciation
+    """
     def __init__(self):
+        """
+        Populate the window with navigation buttons and create main screens
+        Also prompt the user to login and register before accessing the rest of the app
+        """
         super().__init__()
 
         # Create account so the close callback has a value to check
@@ -82,6 +100,7 @@ class MainWindow(QMainWindow):
         passwordBox = QLineEdit()
         submitRegister = QPushButton("Register")
 
+        # Create layout for register screen
         registerLayout.addWidget(usernameLabel)
         registerLayout.addWidget(usernameBox)
         registerLayout.addWidget(passwordLabel)
@@ -91,6 +110,7 @@ class MainWindow(QMainWindow):
         registerWidget = QWidget()
         registerWidget.setLayout(registerLayout)
 
+        # Create widgets for login
         loginlayout = QVBoxLayout()
         passwordLabel2 = QLabel("Enter Password")
         passwordLabel2.setAlignment(Qt.AlignHCenter)
@@ -99,12 +119,14 @@ class MainWindow(QMainWindow):
         submitLogin = QPushButton("Login")
         passwordBox2.returnPressed.connect(submitLogin.click)
 
+        # Create layout for login
         loginlayout.addWidget(passwordLabel2)
         loginlayout.addWidget(passwordBox2)
         loginlayout.addWidget(submitLogin)
         loginWidget = QWidget()
         loginWidget.setLayout(loginlayout)
 
+        # Create a container that can switch the active widget
         stackedContainer.addWidget(mainWidget)
         stackedContainer.addWidget(registerWidget)
         stackedContainer.addWidget(loginWidget)
@@ -134,14 +156,16 @@ class MainWindow(QMainWindow):
             stackedContainer.setCurrentWidget(loginWidget)
 
     def verifyPassword(self, password, stackedWidget, targetWidget):
+        """
+        Check that the entered password matches the saved password
+        """
         if (password == self.account.password):
             stackedWidget.setCurrentWidget(targetWidget)
 
-    # TODO: Find a better way to store data in the file
-    # Maybe json? and use pythons builtin json lib
-    # Or find a way to directly load and store python class data
     def loadAccountData(self):
-
+        """
+        Load the account data from a file
+        """
         self.account = classes.Account.load()
         self.accDetailsScreen.load_account(self.account)
         self.homeScreen.updateList(self.account)
@@ -160,6 +184,9 @@ class MainWindow(QMainWindow):
         print(f"Loaded account: {self.account.username}")
 
     def register(self, username, password):
+        """
+        Save new account info to a file
+        """
         dataFile = open("account.txt", "w+")
         dataFile.write("Username: " + username + "\n")
         self.account = classes.Account(username, password)
@@ -170,6 +197,9 @@ class MainWindow(QMainWindow):
 
     # TODO: create ability to add friends to event
     def createNewEventWindow(self):
+        """
+        Create a window used to create events
+        """
         self.NewEventWindow = InfoWindow("New Event")
         self.NewEventWindow.set_size(300, 200)
 
@@ -194,66 +224,15 @@ class MainWindow(QMainWindow):
         self.NewEventWindow.show()
         # will need to add modal dialog options to disable input on main window
 
-    # Create and return a QWidget that represents a new transaction screen
-    def createNewTransScreen(self):
-        screen = QWidget()
-        layout = QVBoxLayout()
-
-        # TODO: Make this a drop down menu and use the Friend class
-        # Also create a table to show all added friends
-        # Don't allow duplicates
-        nameLabel = QLabel("Names (Separated By Commas):")
-        nameLabel.setAlignment(Qt.AlignHCenter)
-        nameLineEdit = QLineEdit()
-
-        ammountLabel = QLabel("Enter ammount:")
-        ammountLabel.setAlignment(Qt.AlignHCenter)
-        ammountLineEdit = QLineEdit()
-        ammountLineEdit.setValidator(QDoubleValidator(0, 9999, 2))
-        ammountLineEdit.setText("0.00")
-        commentsLabel = QLabel("Comments:")
-        commentsLabel.setAlignment(Qt.AlignHCenter)
-        commentsTextEdit = QTextEdit()
-        lineHeight = commentsTextEdit.fontMetrics().lineSpacing()
-        commentsTextEdit.setMinimumHeight(lineHeight * 5)
-        submitButton = QPushButton("Submit")
-        submitButton.clicked.connect(
-            lambda: (
-                self.addTransaction(
-                    [name.strip() for name in nameLineEdit.text().split(",")],
-                    float(ammountLineEdit.text()),
-                    commentsTextEdit.text()
-                ),
-                nameLineEdit.setText(""),
-                ammountLineEdit.setText("0.00"),
-                commentsTextEdit.setText("")
-            )
-        )
-
-        layout.addWidget(nameLabel)
-        layout.addWidget(nameLineEdit)
-        layout.addWidget(ammountLabel)
-        layout.addWidget(ammountLineEdit)
-        layout.addWidget(commentsLabel)
-        layout.addWidget(commentsTextEdit)
-        layout.addWidget(submitButton)
-        screen.setLayout(layout)
-        return screen
-
     def addEvent(self):
+        """
+        Function to add an event from the new event window
+        """
         curevent = classes.Event(self.eventnameLineEdit.text())
         self.event_list.append(curevent)
         self.event_names.append(curevent.name)
         self.eventScreen.update()
         self.NewEventWindow.close()
-
-    # Function used to create a transaction when the submit
-    # button is pressed on the new transaction screen
-    # TODO: Actually create transactions
-    def addTransaction(self, names, ammount, comments):
-        print(names)
-        print(ammount)
-        print(comments)
 
     def closeEvent(self, event):
         """
