@@ -1,17 +1,31 @@
+"""
+homescreen.py
+
+This file contains the widget that displays the home screen
+"""
+
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem, QLabel, QHeaderView, QPushButton, QLineEdit, QDoubleSpinBox
 import classes
 
 # Create and return a QWidget that represents the home screen
 # TODO: Fill out transaction table
 class HomeScreen(QWidget):
-    
+    """
+    Class that represent the home screen widget
+    """
     def __init__(self, originalwindow):
+        """
+        Save the parent window then create the widgets
+        """
         self.originalwindow = originalwindow
         super().__init__()
         self.init_gui()
         
 
     def init_gui(self):
+        """
+        Create all of the widgets on the screen
+        """
         layout = QVBoxLayout()
         buttonlayout = QHBoxLayout()
         buttoncontainer = QWidget()
@@ -37,15 +51,24 @@ class HomeScreen(QWidget):
 
 
     def createNewFriendWindow(self):
+        """
+        Create a window to add a friend
+        """
         self.newFriendWin = NewFriendWindow(self)
         self.newFriendWin.show()
 
     def createRemoveFriendWindow(self):
+        """
+        Create a window to remove a friend
+        """
         self.removefriendwin = removeFriendWindow(self)
         self.removefriendwin.show()
 
     #TODO: dont allow duplicates
     def add_friend(self, friend):
+        """
+        Add a friend to the account
+        """
         self.originalwindow.account.add_friend(friend)
         self.originalwindow.accDetailsScreen.load_account(self.originalwindow.account)
         newrow = self.friendslist.rowCount()
@@ -56,6 +79,9 @@ class HomeScreen(QWidget):
         
     
     def remove_friend(self, name):
+        """
+        Remove a friend from the account
+        """
         friendslist = list(self.originalwindow.account.friends.keys())
         if name in friendslist:
             tableindex = friendslist.index(name)
@@ -64,6 +90,9 @@ class HomeScreen(QWidget):
         
 
     def updateList(self, account):
+        """
+        Update the frinds list
+        """
         for friend in account.friends:
             newrow = self.friendslist.rowCount()
             self.friendslist.insertRow(newrow)
@@ -73,7 +102,13 @@ class HomeScreen(QWidget):
         
 
 class NewFriendWindow(QWidget):
+    """
+    Window to add a new friend
+    """
     def __init__(self, originalwindow):
+        """
+        Create widgets so user can enter friend information
+        """
         super().__init__()
         self.originalwindow = originalwindow
         layout = QVBoxLayout()
@@ -100,6 +135,9 @@ class NewFriendWindow(QWidget):
         self.setLayout(layout)
 
     def addFriend(self):
+        """
+        Add the frined to the account
+        """
         newfriend = classes.Friend(self.friendnamefield.text())
         newfriend.amount_owed_by_user = self.amountowedtofriendfield.value()
         newfriend.amount_owed_to_user = self.amountowedbyfriendfield.value()
@@ -108,7 +146,13 @@ class NewFriendWindow(QWidget):
 
 
 class removeFriendWindow(QWidget):
+    """
+    Window to remove a friend
+    """
     def __init__(self, originalwindow):
+        """
+        Create widgets to remove the friend
+        """
         super().__init__()
 
         layout = QVBoxLayout()
@@ -123,5 +167,8 @@ class removeFriendWindow(QWidget):
         self.setLayout(layout)
 
     def removeFriend(self, originalwindow):
+        """
+        Remove the friend from the account
+        """
         originalwindow.remove_friend(self.friendnamefield.text())
         self.close()

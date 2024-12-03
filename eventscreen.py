@@ -1,4 +1,10 @@
-from PyQt5.QtWidgets import (QWidget, QGridLayout, QListWidgetItem, QVBoxLayout, QTableWidget, 
+"""
+eventscreen.py
+
+This file contains widgets associated with individual events
+"""
+
+from PyQt5.QtWidgets import (QWidget, QGridLayout, QListWidgetItem, QVBoxLayout, QTableWidget,
                              QPushButton, QListWidget, QLabel, QLineEdit, QMessageBox, QScrollArea)
 from PyQt5.QtGui import QWindow, QColor
 from PyQt5.QtCore import Qt
@@ -8,17 +14,26 @@ import split
 
 
 class EventScreen(QWidget):
+    """
+    This is the main event screen that displays event details
+    """
 
     curEvent = None
     eventList = []
 
     def __init__(self, originalwindow):
+        """
+        Create the screen with a reference to the parent
+        """
         super().__init__()
         self.originalwindow = originalwindow
         self.selectedEvent = None
         self.init_gui()
 
     def init_gui(self):
+        """
+        Create all of the widgets on the screen
+        """
         self.wlayout = QVBoxLayout()
         self.newEventButton = QPushButton("New Event")
         self.newEventButton.clicked.connect(lambda: self.createNewEventWindow(self.originalwindow))
@@ -43,22 +58,35 @@ class EventScreen(QWidget):
         self.setLayout(self.wlayout)
 
     def createNewEventWindow(self, originalwindow):
+        """
+        Create and show the new event window
+        """
         self.newEventWin = NewEventWindow(self, originalwindow.account)
         self.newEventWin.show()
 
     def createEventTransactionsWindow(self, item):
+        """
+        Create and show the transactions window for the current event
+        """
         selEvent = self.originalwindow.account.events[item.text()]
         self.curRow = self.eventtable.currentRow()
         self.eventTransWin = EventTransactionsWindow(self, selEvent)
         self.eventTransWin.show()
 
     def saveCurEvent(self, event):
+        """
+        Save the current event to the account
+        """
         self.curEvent = event
         self.originalwindow.account.add_event(event)
         self.originalwindow.account.save()
 
 
     def addEventtoTable(self, event):
+        """
+        Add an event to the table to be displayed
+        The default bg is red to mark the event as incomplete
+        """
         item = QListWidgetItem(event)
         item.setBackground(QColor(0xFF0000))
         item.setForeground(QColor(0xFFFFFF))
@@ -66,6 +94,9 @@ class EventScreen(QWidget):
         self.eventtable.update()
 
     def remove_event(self, event):
+        """
+        Remove an event from the screen and account
+        """
         self.eventtable.takeItem(self.curRow)
         self.eventtable.update()
         self.originalwindow.account.remove_event(event.name)
@@ -86,8 +117,16 @@ class EventScreen(QWidget):
 
 
 class EventTransactionsWindow(QWidget):
+    """
+    Class that shows all of the transaction associated with the
+    current event
+    """
 
     def __init__(self, originalwindow, event):
+        """
+        Create the window with a reference to the
+        parent and create all of the widgets
+        """
         super().__init__()
         self.transEvent = event
         self.originalwindow = originalwindow
@@ -100,7 +139,7 @@ class EventTransactionsWindow(QWidget):
         self.addtransbutton.clicked.connect(self.createNewTransactionWindow)
         self.editeventbutton = QPushButton("Edit Event")
         self.deleventbutton = QPushButton("Delete Event")
-        self.deleventbutton.setStyleSheet("background-color : red") 
+        self.deleventbutton.setStyleSheet("background-color : red")
         self.deleventbutton.clicked.connect(self.removeEvent)
         self.transactionlabel = QLabel("Transactions")
         self.transactionlabel.setAlignment(Qt.AlignHCenter)
@@ -120,38 +159,55 @@ class EventTransactionsWindow(QWidget):
         self.setLayout(layout)
 
     def removeEvent(self):
+        """
+        Function to remove the current event from the list
+        """
         self.originalwindow.remove_event(self.transEvent)
         self.close()
 
     def createNewTransactionWindow(self):
+        """
+        Function to create the new transactions window
+        which can add transactions to this event
+        """
         if self.originalwindow.originalwindow.account.displayName.isspace():
             nameerror = QMessageBox.critical(self, "No Display Name", "Set a display name in account settings before adding a transaction",
                                              buttons=QMessageBox.Ok)
         else:
             self.newTransWin = transactions.NewTransactionWindow(self)
             self.newTransWin.show()
-    
 
     def createTransactionMenu(self, item):
+        """
+        Function to create a transaction and add it to the event
+        """
         selTrans = self.transEvent.transactions[item.text()]
         self.curRow = self.transactionlist.currentRow()
         self.transMenu = transactions.TransactionMenu(self, selTrans)
         self.transMenu.show()
 
     def editTransaction(self, transaction):
+        """
+        Function to open the edit transaction window
+        """
         self.editTransWindow = transactions.EditTransactionWindow(self, transaction)
         self.editTransWindow.show()
 
     def submitTransactionEdit(self, oldTransaction):
+        """
+        Funtcion to submit a transaction edit to the event
+        """
         name = self.editTransWindow.nameLineEdit.text()
         desc = self.editTransWindow.descLineEdit.text()
         debtorData = []
         rows = self.editTransWindow.debtorsTable.rowCount()
+        # Gather all of the data from the table
         for r in range(rows):
             item = ["", -999]
             debtorname = self.editTransWindow.debtorsTable.item(r, 0)
             ammount = self.editTransWindow.debtorsTable.item(r, 1)
 
+            # Validate the row
             if debtorname and debtorname.text():
                 item[0] = debtorname.text()
             if ammount and ammount.text():
@@ -167,29 +223,44 @@ class EventTransactionsWindow(QWidget):
             else:
                 print("Invalid debtor. Not adding")
 
+        # Create a new transaction
         newTransaction = classes.Transaction(name, desc)
         for i in range(len(debtorData)):
             newTransaction.add_debtor(debtorData[i])
 
+        # Replace the old transaction with the new one
         self.removeTransaction(oldTransaction)
         self.addTransaction(newTransaction)
         self.editTransWindow.close()
 
-
     def addTransaction(self, transaction):
+        """
+        Function to add a transaction to the event
+        """
         self.transEvent.add_transaction(transaction)
         item = QListWidgetItem(transaction.name)
         self.transactionlist.addItem(item)
 
     def removeTransaction(self, transaction):
+        """
+        Function to remove a transaction to the event
+        """
         self.transactionlist.takeItem(self.curRow)
         self.transactionlist.update()
         self.transEvent.remove_transaction(transaction)
 
 
-
 class NewEventWindow(QWidget):
+    """
+    This class represents the new event window that allows
+    the createion of events
+    """
+
     def __init__(self, originalwindow, account):
+        """
+        Create the widget and populate it
+        """
+
         super().__init__()
         self.setWindowTitle("Create a New Event")
         self.resize(800, 500)
@@ -220,10 +291,17 @@ class NewEventWindow(QWidget):
         self.setLayout(self.wlayout)
 
     def set_size(self, length, width):
-        self.resize(length,width)
+        """
+        Resize the widget
+        """
+        self.resize(length, width)
 
     def save_event_info(self, originalwindow):
-        #TODO: add else with a dialog box that says there was no name entered
+        """
+        Save the event info and add the event to the list
+        """
+
+        # TODO: add else with a dialog box that says there was no name entered
         if self.eventnameLineEdit.text():
             self.savedEvent = classes.Event(self.eventnameLineEdit.text())
             friends = self.eventfriendslist.selectedItems()
@@ -233,5 +311,3 @@ class NewEventWindow(QWidget):
             originalwindow.saveCurEvent(self.savedEvent)
             originalwindow.addEventtoTable(self.savedEvent.name)
         self.close()
-
-
