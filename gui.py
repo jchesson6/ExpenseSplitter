@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QApplication, QListWidgetItem, QHeaderView, QTextEdit, QLabel, QLineEdit, QTableWidgetItem, QTableWidget, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QStackedWidget, QListWidget
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QDoubleValidator, QColor
+from PyQt5.QtGui import QDoubleValidator, QColor, QFont
 import sys
 import os
 import classes, homescreen, accountscreen, eventscreen
@@ -69,6 +69,15 @@ class MainWindow(QMainWindow):
         # Widget for main app and register screen
         stackedContainer = QStackedWidget()
 
+        # create app title
+        applabel = QLabel("Group Expense Splitter")
+        applabel.setAlignment(Qt.AlignHCenter)
+        titlefont = applabel.font()
+        titlefont.setPointSize(40)
+        titlefont.setCapitalization(QFont.AllUppercase)
+        titlefont.setBold(True)
+        applabel.setFont(titlefont)
+
         # Create registerscreen
         registerLayout = QVBoxLayout()
         usernameLabel = QLabel("Username")
@@ -79,6 +88,7 @@ class MainWindow(QMainWindow):
         passwordBox = QLineEdit()
         submitRegister = QPushButton("Register")
 
+        registerLayout.addWidget(applabel)
         registerLayout.addWidget(usernameLabel)
         registerLayout.addWidget(usernameBox)
         registerLayout.addWidget(passwordLabel)
@@ -88,16 +98,23 @@ class MainWindow(QMainWindow):
         registerWidget = QWidget()
         registerWidget.setLayout(registerLayout)
 
+        passwordlayout = QHBoxLayout()
+        passwordcontainer = QWidget()
         loginlayout = QVBoxLayout()
         passwordLabel2 = QLabel("Enter Password")
-        passwordLabel2.setAlignment(Qt.AlignHCenter)
+        #passwordLabel2.setAlignment(Qt.AlignHCenter)
         passwordBox2 = QLineEdit()
         passwordBox2.setEchoMode(QLineEdit.Password)
         submitLogin = QPushButton("Login")
         passwordBox2.returnPressed.connect(submitLogin.click)
 
-        loginlayout.addWidget(passwordLabel2)
-        loginlayout.addWidget(passwordBox2)
+        passwordlayout.addWidget(passwordLabel2)
+        passwordlayout.addWidget(passwordBox2)
+        passwordcontainer.setLayout(passwordlayout)
+
+        loginlayout.addWidget(applabel)
+        loginlayout.addWidget(passwordcontainer)
+        #loginlayout.addWidget(passwordBox2)
         loginlayout.addWidget(submitLogin)
         loginWidget = QWidget()
         loginWidget.setLayout(loginlayout)

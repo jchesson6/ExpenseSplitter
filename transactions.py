@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QWidget, QTableWidget, QTableWidgetItem, QGridLayout, QHeaderView, QVBoxLayout, QPushButton, QListWidget, 
-                             QLabel, QLineEdit, QMainWindow, QScrollArea, QTextEdit, QAbstractItemView, QComboBox, QHBoxLayout,
+                             QLabel, QLineEdit, QMainWindow, QCheckBox, QTextEdit, QAbstractItemView, QComboBox, QHBoxLayout,
                              QSizePolicy
-)
+                             )
 from PyQt5.QtGui import QWindow, QDoubleValidator
 from PyQt5.QtCore import Qt
 import classes
@@ -19,6 +19,9 @@ class NewTransactionWindow(QWidget):
         desclabel = QLabel("Enter a description for transaction")
         self.description = QTextEdit()
         self.description.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.setequalbutton = QPushButton("Split Equally Amongst Everyone")
+        self.setequalbutton.setCheckable(True)
+        self.setequalbutton.clicked.connect(self.set_equal_split)
         self.savebutton = QPushButton("Save")
         self.savebutton.clicked.connect(self.saveTransaction)
 
@@ -40,6 +43,7 @@ class NewTransactionWindow(QWidget):
         self.payersel.addItem(originalwindow.originalwindow.originalwindow.account.displayName)
         self.debtorsel.addItem(originalwindow.originalwindow.originalwindow.account.displayName)
 
+        # add friends on event to transaction list
         for person in originalwindow.transEvent.people:
             self.payersel.addItem(person.name)
             self.debtorsel.addItem(person.name)
@@ -83,6 +87,7 @@ class NewTransactionWindow(QWidget):
         self.tlayout.addWidget(self.debtorlabel)
         self.tlayout.addWidget(self.debtorcontainer)
         self.tlayout.addWidget(self.newdebtorbutton)
+        self.tlayout.addWidget(self.setequalbutton)
         self.tlayout.addWidget(self.savebutton)
 
         self.setLayout(self.tlayout)
@@ -90,9 +95,11 @@ class NewTransactionWindow(QWidget):
 
     def add_payer(self):
         payersel = QComboBox()
+        payersel.addItem(self.originalwindow.originalwindow.originalwindow.account.displayName)
         for person in self.originalwindow.transEvent.people:
             payersel.addItem(person.name)
         payeramt = QLineEdit()
+        payeramt.textChanged.connect(self.set_equal_split)
         payeramt.setValidator(self.validator)
         payeramt.setPlaceholderText("00.00")
 
@@ -107,15 +114,16 @@ class NewTransactionWindow(QWidget):
         cont.setLayout(blayout)
         self.num_payers += 1
         self.paycontlayout.insertWidget(len(self.paycontlayout), cont)
+        self.set_equal_split()
         
-
     def remove_payer(self, payernum):
         self.num_payers -= 1
         self.paycontlayout.takeAt(payernum)
-
+        self.set_equal_split()
 
     def add_debtor(self):
         debtorsel = QComboBox()
+        debtorsel.addItem(self.originalwindow.originalwindow.originalwindow.account.displayName)
         for person in self.originalwindow.transEvent.people:
             debtorsel.addItem(person.name)
         debtoramt = QLineEdit()
@@ -132,10 +140,39 @@ class NewTransactionWindow(QWidget):
         cont.setLayout(blayout)
         self.num_debtors += 1
         self.debtorcontlayout.insertWidget(len(self.debtorcontlayout), cont)
+        self.set_equal_split()
 
     def remove_debtor(self, debtornum):
         self.num_debtors -= 1
         self.debtorcontlayout.takeAt(debtornum)
+        self.set_equal_split()
+
+    def set_equal_split(self):
+
+        if self.setequalbutton.isChecked():
+
+            # loop through payer field items
+            paywidgets = (self.paycontlayout.itemAt(i) for i in range(self.paycontlayout.count()))
+            debwidgets = (self.debtorcontlayout.itemAt(i) for i in range(self.debtorcontlayout.count()))
+            num_split = self.paycontlayout.count() + self.debtorcontlayout.count()
+            totalpaid = 0.0
+
+            for item in paywidgets:
+                widget = item.widget()
+        
+                for lineedit in widget.findChildren(QLineEdit):
+                    if lineedit.text():
+                        amt = float(lineedit.text())
+                        totalpaid += amt
+            
+            amtperperson = totalpaid / num_split
+
+            for item in debwidgets:     
+                widget = item.widget()      
+                
+                for lineedit in widget.findChildren(QLineEdit):
+                    lineedit.setText(str(amtperperson))
+
 
     def saveTransaction(self):
         transaction = classes.Transaction(self.transnamefield.text(), self.description.toPlainText())
@@ -163,6 +200,12 @@ class NewTransactionWindow(QWidget):
             for lineedit in widget.findChildren(QLineEdit):
                 amt = float(lineedit.text())
             transaction.add_debtor(debtor,amt)
+
+        #check if any duplicate names and warn user
+
+        #check if any payers are in the debtors and warn user
+
+        
         
         print(transaction)
         self.originalwindow.addTransaction(transaction)

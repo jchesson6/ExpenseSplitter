@@ -4,6 +4,7 @@ from PyQt5.QtGui import QWindow, QColor
 from PyQt5.QtCore import Qt
 import classes
 import transactions
+import split
 
 
 class EventScreen(QWidget):
@@ -14,13 +15,13 @@ class EventScreen(QWidget):
     def __init__(self, originalwindow):
         super().__init__()
         self.originalwindow = originalwindow
+        self.selectedEvent = None
         self.init_gui()
 
     def init_gui(self):
         self.wlayout = QVBoxLayout()
         self.newEventButton = QPushButton("New Event")
         self.newEventButton.clicked.connect(lambda: self.createNewEventWindow(self.originalwindow))
-        # eventcontainer = QWidget()
 
         self.eventtable = QListWidget()
 
@@ -28,9 +29,17 @@ class EventScreen(QWidget):
             self.eventtable.insertItems(self.eventList)
 
         self.eventtable.itemDoubleClicked.connect(self.createEventTransactionsWindow)
+        self.eventtable.itemClicked.connect(self.set_selected_event)
+
+        self.calculatebutton = QPushButton("Calculate Event Payments")
+        self.markaspaidbutton = QPushButton("Mark as Paid")
+        self.markasunpaidbutton = QPushButton("Mark as Unpaid")
+        
+        self.calculatebutton.clicked.connect(self.calculate_event)
 
         self.wlayout.addWidget(self.newEventButton)
         self.wlayout.addWidget(self.eventtable)
+        self.wlayout.addWidget(self.calculatebutton)
         self.setLayout(self.wlayout)
 
     def createNewEventWindow(self, originalwindow):
@@ -48,10 +57,6 @@ class EventScreen(QWidget):
         self.originalwindow.account.add_event(event)
         self.originalwindow.account.save()
 
-        print(self.originalwindow.account.num_events)
-
-        for events in self.originalwindow.account.events:
-            print(events)
 
     def addEventtoTable(self, event):
         item = QListWidgetItem(event)
@@ -64,6 +69,20 @@ class EventScreen(QWidget):
         self.eventtable.takeItem(self.curRow)
         self.eventtable.update()
         self.originalwindow.account.remove_event(event.name)
+
+    def set_selected_event(self, item):
+        self.selectedEvent = item.text()
+
+    def calculate_event(self):
+        selEvent = self.originalwindow.account.events[self.selectedEvent]
+        results = split.calculate_split(selEvent, self.originalwindow.account)        
+        print(results)
+    
+    def mark_as_paid(self):
+        return None
+    
+    def mark_as_unpaid(self):
+        return None
 
 
 class EventTransactionsWindow(QWidget):
