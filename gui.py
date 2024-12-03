@@ -4,7 +4,10 @@ gui.py
 This file contains the main function and defines the main windows behavior
 """
 
-from PyQt5.QtWidgets import QApplication, QListWidgetItem, QHeaderView, QTextEdit, QLabel, QLineEdit, QTableWidgetItem, QTableWidget, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QStackedWidget, QListWidget
+from PyQt5.QtWidgets import (QApplication, QListWidgetItem, QHeaderView, QTextEdit, QLabel, QLineEdit, 
+                             QTableWidgetItem, QTableWidget, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, 
+                             QPushButton, QStackedWidget, QListWidget, QMessageBox
+                            )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator, QColor, QFont
 import sys
@@ -179,7 +182,7 @@ class MainWindow(QMainWindow):
         if (password == self.account.password):
             stackedWidget.setCurrentWidget(targetWidget)
         else:
-            print(self.account.password)
+            QMessageBox.critical(self, "Incorrect Password", "Password entered was incorrect", buttons=QMessageBox.Retry)
 
     def loadAccountData(self):
         """

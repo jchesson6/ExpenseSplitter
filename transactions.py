@@ -474,7 +474,7 @@ class EditTransactionWindow(QWidget):
                 if lineedit.text() != "":
                     amt = float(lineedit.text())
                 else:
-                    error = QMessageBox.critical(self, "No Value", "Enter a value for the debtor before saving", buttons=QMessageBox.Ok)
+                    QMessageBox.critical(self, "No Value", "Enter a value for the debtor before saving", buttons=QMessageBox.Ok)
                     return
             transaction.add_debtor(debtor,amt)
 
