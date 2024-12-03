@@ -106,6 +106,7 @@ class NewTransactionWindow(QWidget):
         Add a payer to the transaction
         """
         payersel = QComboBox()
+        payersel.addItem(self.originalwindow.originalwindow.originalwindow.account.displayName)
         for person in self.originalwindow.transEvent.people:
             payersel.addItem(person.name)
         payeramt = QLineEdit()
@@ -136,6 +137,7 @@ class NewTransactionWindow(QWidget):
         Add a debtor to the transaction
         """
         debtorsel = QComboBox()
+        debtorsel.addItem(self.originalwindow.originalwindow.originalwindow.account.displayName)
         for person in self.originalwindow.transEvent.people:
             debtorsel.addItem(person.name)
         debtoramt = QLineEdit()
@@ -321,10 +323,11 @@ class EditTransactionWindow(QWidget):
         for i, payer in enumerate(self.transaction.payers):
             payersel = QComboBox()
             payersel.addItem(self.originalwindow.originalwindow.originalwindow.account.displayName)
-            for i, person in enumerate(self.originalwindow.transEvent.people):
+            print(self.originalwindow.transEvent.people)
+            for j, person in enumerate(self.originalwindow.transEvent.people):
                 payersel.addItem(person.name)
                 if payer == person.name:
-                    payersel.setCurrentIndex(i)
+                    payersel.setCurrentIndex(j + 1)
 
             payeramt = QLineEdit(str(self.transaction.payers[payer]))
             payeramt.setValidator(self.validator)
@@ -352,10 +355,10 @@ class EditTransactionWindow(QWidget):
         for i, debtor in enumerate(self.transaction.debtors): 
             debtorsel = QComboBox()
             debtorsel.addItem(self.originalwindow.originalwindow.originalwindow.account.displayName)
-            for i, person in enumerate(self.originalwindow.transEvent.people):
-                payersel.addItem(person.name)
+            for j, person in enumerate(self.originalwindow.transEvent.people):
+                debtorsel.addItem(person.name)
                 if debtor == person.name:
-                    payersel.setCurrentIndex(i)
+                    debtorsel.setCurrentIndex(j + 1)
             debtoramt = QLineEdit(str(self.transaction.debtors[debtor]))
             debtoramt.setValidator(self.validator)
             debtoramt.setPlaceholderText("00.00")
@@ -441,6 +444,7 @@ class EditTransactionWindow(QWidget):
         Add a payer to the transaction
         """
         payersel = QComboBox()
+        payersel.addItem(self.originalwindow.originalwindow.originalwindow.account.displayName)
         for person in self.originalwindow.transEvent.people:
             payersel.addItem(person.name)
         payeramt = QLineEdit()
@@ -464,6 +468,7 @@ class EditTransactionWindow(QWidget):
         Add a debtor to the transaction
         """
         debtorsel = QComboBox()
+        debtorsel.addItem(self.originalwindow.originalwindow.originalwindow.account.displayName)
         for person in self.originalwindow.transEvent.people:
             debtorsel.addItem(person.name)
         debtoramt = QLineEdit()
