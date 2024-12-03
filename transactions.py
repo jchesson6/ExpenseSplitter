@@ -342,7 +342,7 @@ class EditTransactionWindow(QWidget):
         Create a window similar to the new transaction window but will details filled out
         """
         self.resize(1000, 600)
-        self.setWindowTitle("Add a New Transaction to " + self.originalwindow.transEvent.name)
+        self.setWindowTitle("Edit Transaction")
         self.tlayout = QVBoxLayout()
         namelabel = QLabel("Enter Transaction name")
         self.transnamefield = QLineEdit(self.transaction.name)

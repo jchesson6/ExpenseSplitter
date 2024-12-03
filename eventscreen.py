@@ -156,6 +156,8 @@ class EventTransactionsWindow(QWidget):
 
         self.transactionlist.itemDoubleClicked.connect(self.createTransactionMenu)
 
+        self.editeventbutton.clicked.connect(self.createEditEventWindow)
+
         layout.addWidget(self.addtransbutton)
         layout.addWidget(self.editeventbutton)
         layout.addWidget(self.transactionlabel)
@@ -163,6 +165,13 @@ class EventTransactionsWindow(QWidget):
         layout.addWidget(self.deleventbutton)
 
         self.setLayout(layout)
+
+    def createEditEventWindow(self):
+        """
+        Create a window to edit the current event
+        """
+        self.editEventWindow = EditEventWindow(self)
+        self.editEventWindow.show()
 
     def removeEvent(self):
         """
@@ -261,6 +270,54 @@ class EventTransactionsWindow(QWidget):
         self.transEvent.is_complete = False
         self.originalwindow.refreshEventTable()
 
+
+class EditEventWindow(QWidget):
+    """
+    Window to edit an event
+    An events name is currently the only part that can be changed as changing participants would affect all transactions
+    in an undefined way
+    """
+    def __init__(self, originalwindow):
+        """
+        Create widgets for editing
+        """
+        super().__init__()
+        self.originalwindow = originalwindow
+
+        self.setWindowTitle("Edit Event")
+        self.resize(800, 500)
+        self.account = originalwindow.originalwindow.originalwindow.account
+
+        self.container = QWidget()
+        self.wlayout = QVBoxLayout()
+
+        self.nameLabel = QLabel("Enter Name:")
+        self.nameLabel.setAlignment(Qt.AlignHCenter)
+        self.eventnameLineEdit = QLineEdit(self.originalwindow.transEvent.name)
+
+        self.save_event_button = QPushButton("Save")
+        self.save_event_button.clicked.connect(lambda: self.save_event_info())
+
+        self.wlayout.addWidget(self.nameLabel)
+        self.wlayout.addWidget(self.eventnameLineEdit)
+        self.wlayout.addWidget(self.save_event_button)
+        self.setLayout(self.wlayout)
+
+    def save_event_info(self):
+        """
+        Copy event data, remove the old event, add the new one
+        """
+        event = classes.Event(self.eventnameLineEdit.text())
+        event.transactions = self.originalwindow.transEvent.transactions
+        event.people = self.originalwindow.transEvent.people
+        event.num_transactions = self.originalwindow.transEvent.num_transactions
+        event.is_complete = False
+        self.originalwindow.originalwindow.remove_event(self.originalwindow.transEvent)
+        self.originalwindow.originalwindow.saveCurEvent(event)
+        self.originalwindow.originalwindow.refreshEventTable()
+        self.originalwindow.close()
+        self.close()
+        
 
 class NewEventWindow(QWidget):
     """
