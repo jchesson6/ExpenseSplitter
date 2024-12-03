@@ -57,6 +57,19 @@ class EventScreen(QWidget):
         self.wlayout.addWidget(self.calculatebutton)
         self.setLayout(self.wlayout)
 
+    def refreshEventTable(self):
+        self.eventtable.clear()
+        for event in self.originalwindow.account.events:
+            if not self.originalwindow.account.events[event].is_complete:
+                item = QListWidgetItem(event)
+                item.setBackground(QColor(0xFF0000))
+                item.setForeground(QColor(0xFFFFFF))
+                self.addEventtoTable(item)
+            else:
+                item = QListWidgetItem(event)
+                item.setBackground(QColor(0x00FF00))
+                self.addEventtoTable(item)
+
     def createNewEventWindow(self, originalwindow):
         """
         Create and show the new event window
@@ -81,16 +94,12 @@ class EventScreen(QWidget):
         self.originalwindow.account.add_event(event)
         self.originalwindow.account.save()
 
-
     def addEventtoTable(self, event):
         """
         Add an event to the table to be displayed
         The default bg is red to mark the event as incomplete
         """
-        item = QListWidgetItem(event)
-        item.setBackground(QColor(0xFF0000))
-        item.setForeground(QColor(0xFFFFFF))
-        self.eventtable.addItem(item)
+        self.eventtable.addItem(event)
         self.eventtable.update()
 
     def remove_event(self, event):
@@ -105,15 +114,12 @@ class EventScreen(QWidget):
         self.selectedEvent = item.text()
 
     def calculate_event(self):
-        selEvent = self.originalwindow.account.events[self.selectedEvent]
-        results = split.calculate_split(selEvent, self.originalwindow.account)        
-        print(results)
-    
-    def mark_as_paid(self):
-        return None
-    
-    def mark_as_unpaid(self):
-        return None
+        selEvent = self.originalwindow.account.events[self.selectedEvent]    
+        if not selEvent.is_complete:
+            results = split.calculate_split(selEvent, self.originalwindow.account)
+            selEvent.is_complete = True
+            self.refreshEventTable()
+            #print(results)
 
 
 class EventTransactionsWindow(QWidget):
@@ -232,6 +238,8 @@ class EventTransactionsWindow(QWidget):
         self.removeTransaction(oldTransaction)
         self.addTransaction(newTransaction)
         self.editTransWindow.close()
+        self.transEvent.is_complete = False
+        self.originalwindow.refreshEventTable()
 
     def addTransaction(self, transaction):
         """
@@ -240,6 +248,8 @@ class EventTransactionsWindow(QWidget):
         self.transEvent.add_transaction(transaction)
         item = QListWidgetItem(transaction.name)
         self.transactionlist.addItem(item)
+        self.transEvent.is_complete = False
+        self.originalwindow.refreshEventTable()
 
     def removeTransaction(self, transaction):
         """
@@ -248,6 +258,8 @@ class EventTransactionsWindow(QWidget):
         self.transactionlist.takeItem(self.curRow)
         self.transactionlist.update()
         self.transEvent.remove_transaction(transaction)
+        self.transEvent.is_complete = False
+        self.originalwindow.refreshEventTable()
 
 
 class NewEventWindow(QWidget):

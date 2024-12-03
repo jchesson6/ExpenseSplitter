@@ -178,6 +178,8 @@ class MainWindow(QMainWindow):
         """
         if (password == self.account.password):
             stackedWidget.setCurrentWidget(targetWidget)
+        else:
+            print(self.account.password)
 
     def loadAccountData(self):
         """

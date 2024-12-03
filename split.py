@@ -117,7 +117,7 @@ def reduce_transactions(pos_credits, neg_credits, payments):
 
 
 
-
+"""
 #Testing Variables
 # vacation event
 event = classes.Event("Vacation Weekend")
@@ -177,3 +177,4 @@ event.add_transaction(coffee)
 #add event to account and pass through function
 account.add_event(event)
 calculate_split(event, account)
+"""
