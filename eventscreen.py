@@ -51,10 +51,14 @@ class EventScreen(QWidget):
         self.markasunpaidbutton = QPushButton("Mark as Unpaid")
         
         self.calculatebutton.clicked.connect(self.calculate_event)
+        self.markaspaidbutton.clicked.connect(self.markaspaid)
+        self.markasunpaidbutton.clicked.connect(self.markasunpaid)
 
         self.wlayout.addWidget(self.newEventButton)
         self.wlayout.addWidget(self.eventtable)
         self.wlayout.addWidget(self.calculatebutton)
+        self.wlayout.addWidget(self.markaspaidbutton)
+        self.wlayout.addWidget(self.markasunpaidbutton)
         self.setLayout(self.wlayout)
 
     def refreshEventTable(self):
@@ -115,11 +119,43 @@ class EventScreen(QWidget):
 
     def calculate_event(self):
         selEvent = self.originalwindow.account.events[self.selectedEvent]    
-        if not selEvent.is_complete:
-            results = split.calculate_split(selEvent, self.originalwindow.account)
-            selEvent.is_complete = True
-            self.refreshEventTable()
+        
+        results = split.calculate_split(selEvent, self.originalwindow.account)
+        self.paymentwindow = EventPaymentsWindow(selEvent, results)
+        self.paymentwindow.show()
+            #selEvent.is_complete = True
+            #self.refreshEventTable()
             #print(results)
+
+    def markaspaid(self):
+        self.originalwindow.account.events[self.selectedEvent].is_complete = True
+        self.refreshEventTable()
+
+    def markasunpaid(self):
+        self.originalwindow.account.events[self.selectedEvent].is_complete = False
+        self.refreshEventTable()
+
+class EventPaymentsWindow(QWidget):
+    """
+    Window that displays the payments that need to be made
+    """
+    def __init__(self, event, payments):
+        """
+        Create the window with a reference to the
+        parent and create all of the widgets
+        """
+        super().__init__()
+        self.setWindowTitle(event.name + " Payments")
+        self.setFixedWidth(1000)
+        layout = QVBoxLayout()
+
+        for payer, payment in payments.items():
+            for paid in payment:
+                label = QLabel(payer + " pays " + paid + " $" + str(payment[paid]))
+                layout.addWidget(label)
+
+
+        self.setLayout(layout)
 
 
 class EventTransactionsWindow(QWidget):
