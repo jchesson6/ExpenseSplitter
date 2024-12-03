@@ -4,7 +4,7 @@ accountscreen.py
 This file contains the account screen and associated widgets
 """
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QLineEdit
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QLineEdit, QMessageBox
 from PyQt5.QtCore import Qt
 
 
@@ -23,7 +23,7 @@ class editAccWindow(QWidget):
 
         layout = QVBoxLayout()
         self.desc = QLabel("Display Name")
-        self.displaynamefield = QLineEdit(name)
+        self.displaynamefield = QLineEdit()
         self.savebutton = QPushButton("Save")
         self.savebutton.clicked.connect(lambda: self.set_acc_name(originalwindow, self.displaynamefield.text()))
 
@@ -106,9 +106,17 @@ class AccountScreen(QWidget):
         """
         Function to set then display name of the account
         """
+        for friend in self.originalwindow.account.friends:
+            if name.strip() == friend.strip():
+                QMessageBox.critical(self, "Name Error", name + " is already the name of a friend", buttons=QMessageBox.Ok)
+                return
+
         self.originalwindow.account.displayName = name
         self.originalwindow.account.save()
         self.load_account(self.originalwindow.account)
+        QMessageBox.warning(self, "Event Warning", 
+                            "Events using previous display names must be remade or the display name must be changed back to access",
+                            buttons=QMessageBox.Ok)
 
     def delete_account(self):
         """

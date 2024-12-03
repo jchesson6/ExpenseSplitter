@@ -50,13 +50,13 @@ class NewTransactionWindow(QWidget):
         self.num_debtors = 1
 
         # add user to list of payers and debtors
-        self.payersel.addItem(originalwindow.originalwindow.originalwindow.account.displayName)
-        self.debtorsel.addItem(originalwindow.originalwindow.originalwindow.account.displayName)
+        self.payersel.addItem(originalwindow.originalwindow.originalwindow.account.displayName.strip())
+        self.debtorsel.addItem(originalwindow.originalwindow.originalwindow.account.displayName.strip())
 
         # add friends on event to transaction list
         for person in originalwindow.transEvent.people:
-            self.payersel.addItem(person.name)
-            self.debtorsel.addItem(person.name)
+            self.payersel.addItem(person.name.strip())
+            self.debtorsel.addItem(person.name.strip())
 
         # Create list of payers
         self.payerlabel = QLabel("Payers:")
@@ -110,11 +110,14 @@ class NewTransactionWindow(QWidget):
         """
         Add a payer to the transaction
         """
+        if self.num_debtors + self.num_payers == self.originalwindow.transEvent.num_people:
+            QMessageBox.critical(self, "Error", "Number of people on transaction cannot exceed the number of people on the event", buttons=QMessageBox.Ok)
+            return
+
         payersel = QComboBox()
-        
         payersel.addItem(self.originalwindow.originalwindow.originalwindow.account.displayName)
         for person in self.originalwindow.transEvent.people:
-            payersel.addItem(person.name)
+            payersel.addItem(person.name.strip())
         payeramt = QLineEdit()
         payeramt.textChanged.connect(self.set_equal_split)
         payeramt.setValidator(self.validator)
@@ -145,10 +148,14 @@ class NewTransactionWindow(QWidget):
         """
         Add a debtor to the transaction
         """
+        if self.num_debtors + self.num_payers == self.originalwindow.transEvent.num_people:
+            QMessageBox.critical(self, "Error", "Number of people on transaction cannot exceed the number of people on the event", buttons=QMessageBox.Ok)
+            return
+
         debtorsel = QComboBox()
         debtorsel.addItem(self.originalwindow.originalwindow.originalwindow.account.displayName)
         for person in self.originalwindow.transEvent.people:
-            debtorsel.addItem(person.name)
+            debtorsel.addItem(person.name.strip())
         debtoramt = QLineEdit()
         debtoramt.setValidator(self.validator)
         debtoramt.setPlaceholderText("00.00")
@@ -221,7 +228,7 @@ class NewTransactionWindow(QWidget):
                 if lineedit.text() != "":
                     amt = float(lineedit.text())
                 else:
-                    error = QMessageBox.critical(self, "No Value", "Enter a value for the payer before saving", buttons=QMessageBox.Ok)
+                    QMessageBox.critical(self, "No Value", "Enter a value for the payer before saving", buttons=QMessageBox.Ok)
                     return
             transaction.add_payer(payer, amt)
 
@@ -236,15 +243,17 @@ class NewTransactionWindow(QWidget):
                 if lineedit.text() != "":
                     amt = float(lineedit.text())
                 else:
-                    error = QMessageBox.critical(self, "No Value", "Enter a value for the debtor before saving", buttons=QMessageBox.Ok)
+                    QMessageBox.critical(self, "No Value", "Enter a value for the debtor before saving", buttons=QMessageBox.Ok)
                     return
             transaction.add_debtor(debtor,amt)
 
         #check if any duplicate names and warn user
-
         #check if any payers are in the debtors and warn user
-
-        
+        for payer in transaction.payers:
+            for debtor in transaction.debtors:
+                if payer == debtor:
+                    QMessageBox.critical(self, "Name in both fields",payer + " is listed as both a payer and debtor", buttons=QMessageBox.Ok)
+                    return
         
         print(transaction)
         self.originalwindow.addTransaction(transaction)
@@ -366,11 +375,11 @@ class EditTransactionWindow(QWidget):
         # Create payer list
         for i, payer in enumerate(self.transaction.payers):
             payersel = QComboBox()
-            payersel.addItem(self.originalwindow.originalwindow.originalwindow.account.displayName)
+            payersel.addItem(self.originalwindow.originalwindow.originalwindow.account.displayName.strip())
             print(self.originalwindow.transEvent.people)
             for j, person in enumerate(self.originalwindow.transEvent.people):
-                payersel.addItem(person.name)
-                if payer == person.name:
+                payersel.addItem(person.name.strip())
+                if payer.strip() == person.name.strip():
                     payersel.setCurrentIndex(j + 1)
 
             payeramt = QLineEdit(str(self.transaction.payers[payer]))
@@ -400,8 +409,8 @@ class EditTransactionWindow(QWidget):
             debtorsel = QComboBox()
             debtorsel.addItem(self.originalwindow.originalwindow.originalwindow.account.displayName)
             for j, person in enumerate(self.originalwindow.transEvent.people):
-                debtorsel.addItem(person.name)
-                if debtor == person.name:
+                debtorsel.addItem(person.name.strip())
+                if debtor.strip() == person.name.strip():
                     debtorsel.setCurrentIndex(j + 1)
             debtoramt = QLineEdit(str(self.transaction.debtors[debtor]))
             debtoramt.setValidator(self.validator)
@@ -459,7 +468,7 @@ class EditTransactionWindow(QWidget):
                 if lineedit.text() != "":
                     amt = float(lineedit.text())
                 else:
-                    error = QMessageBox.critical(self, "No Value", "Enter a value for the payer before saving", buttons=QMessageBox.Ok)
+                    QMessageBox.critical(self, "No Value", "Enter a value for the payer before saving", buttons=QMessageBox.Ok)
                     return
             transaction.add_payer(payer, amt)
 
@@ -477,8 +486,14 @@ class EditTransactionWindow(QWidget):
                     QMessageBox.critical(self, "No Value", "Enter a value for the debtor before saving", buttons=QMessageBox.Ok)
                     return
             transaction.add_debtor(debtor,amt)
-
-        print(transaction)
+        
+        #check if any payers are in the debtors and warn user
+        for payer in transaction.payers:
+            for debtor in transaction.debtors:
+                if payer == debtor:
+                    QMessageBox.critical(self, "Name in both fields",payer + " is listed as both a payer and debtor", buttons=QMessageBox.Ok)
+                    return
+        
         self.originalwindow.removeTransaction(self.transaction)
         self.originalwindow.addTransaction(transaction)
         self.close()
@@ -487,6 +502,10 @@ class EditTransactionWindow(QWidget):
         """
         Add a payer to the transaction
         """
+        if self.num_debtors + self.num_payers == self.originalwindow.transEvent.num_people:
+            QMessageBox.critical(self, "Error", "Number of people on transaction cannot exceed the number of people on the event", buttons=QMessageBox.Ok)
+            return
+        
         payersel = QComboBox()
         payersel.addItem(self.originalwindow.originalwindow.originalwindow.account.displayName)
         for person in self.originalwindow.transEvent.people:
@@ -511,6 +530,10 @@ class EditTransactionWindow(QWidget):
         """
         Add a debtor to the transaction
         """
+        if self.num_debtors + self.num_payers == self.originalwindow.transEvent.num_people:
+            QMessageBox.critical(self, "Error", "Number of people on transaction cannot exceed the number of people on the event", buttons=QMessageBox.Ok)
+            return
+
         debtorsel = QComboBox()
         debtorsel.addItem(self.originalwindow.originalwindow.originalwindow.account.displayName)
         for person in self.originalwindow.transEvent.people:

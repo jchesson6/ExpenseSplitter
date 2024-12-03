@@ -130,10 +130,12 @@ class EventScreen(QWidget):
     def markaspaid(self):
         self.originalwindow.account.events[self.selectedEvent].is_complete = True
         self.refreshEventTable()
+        self.originalwindow.account.save()
 
     def markasunpaid(self):
         self.originalwindow.account.events[self.selectedEvent].is_complete = False
         self.refreshEventTable()
+        self.originalwindow.account.save()
 
 class EventPaymentsWindow(QWidget):
     """

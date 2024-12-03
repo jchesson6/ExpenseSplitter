@@ -3,17 +3,15 @@ import classes
 
 def calculate_split(event, account):
 
-    print("Calculation for ", event.name, " on account ", account.displayName)
-
     credits = {}
     pos_credits = {}
     neg_credits = {}
     payments = {}
 
     # set default credits to 0
-    credits[account.displayName] = 0.0
+    credits[account.displayName.strip()] = 0.0
     for person in event.people:
-        credits[person.name] = 0.0
+        credits[person.name.strip()] = 0.0
 
 
     for transaction in event.transactions:
@@ -27,8 +25,8 @@ def calculate_split(event, account):
 
         # negatively credit users that were paid for
         for debtor in transaction_obj.debtors:
-            amt = float(transaction_obj.debtors[debtor])
-            credits[debtor] -= amt
+            amt = float(transaction_obj.debtors[debtor.strip()])
+            credits[debtor.strip()] -= amt
             payer_total += amt
 
 
@@ -38,32 +36,31 @@ def calculate_split(event, account):
         for payer in transaction_obj.payers:
             #transaction_total += transaction_obj.payers[payer]
             #amt = transaction_obj.payers[payer]
-            credits[payer] += payer_amt
+            credits[payer.strip()] += payer_amt
         
 
         # split credits by positive and negative
         for person in credits:
-            if credits[person] > 0.0:
-                pos_credits[person] = credits[person]
+            if credits[person.strip()] > 0.0:
+                pos_credits[person.strip()] = credits[person.strip()]
             elif credits[person] < 0.0:
-                neg_credits[person] = credits[person]
+                neg_credits[person.strip()] = credits[person.strip()]
 
 
     # first check for equal debts and amounts needed for simple transactions
     for person in list(pos_credits.keys()):
-        amt = pos_credits[person]
+        amt = pos_credits[person.strip()]
         if -amt in neg_credits.values():
-            payment = {person: amt}
+            payment = {person.strip(): amt}
             debtor = list(neg_credits.keys())[list(neg_credits.values()).index(-amt)]
-            payments[debtor] = payment
-            del pos_credits[person]
-            del neg_credits[debtor]
+            payments[debtor.strip()] = payment
+            del pos_credits[person.strip()]
+            del neg_credits[debtor.strip()]
 
     # loop until all payments are solved (removed from each dict)
     while pos_credits and neg_credits:
         reduce_transactions(pos_credits, neg_credits, payments)
     
-    print(payments)
     return payments
 
 
@@ -73,18 +70,18 @@ def reduce_transactions(pos_credits, neg_credits, payments):
     for person in list(pos_credits.keys()):
 
         for debtor in list(neg_credits.keys()):
-            debt_amt = neg_credits[debtor]
-            if abs(debt_amt) <= pos_credits[person]:
-                payment = {person: -debt_amt}
+            debt_amt = neg_credits[debtor.strip()]
+            if abs(debt_amt) <= pos_credits[person.strip()]:
+                payment = {person.strip(): -debt_amt}
                 if debtor not in payments:
-                    payments[debtor] = payment
+                    payments[debtor.strip()] = payment
                 else:
-                    payments[debtor][person] = payment
-                pos_credits[person] += debt_amt
-                del neg_credits[debtor]
+                    payments[debtor.strip()][person.strip()] = payment
+                pos_credits[person.strip()] += debt_amt
+                del neg_credits[debtor.strip()]
 
-                if pos_credits[person] == 0.0:
-                    del pos_credits[person]
+                if pos_credits[person.strip()] == 0.0:
+                    del pos_credits[person.strip()]
     
     
 
@@ -92,7 +89,7 @@ def reduce_transactions(pos_credits, neg_credits, payments):
     debtgreater = False
     for debtor in list(neg_credits.keys()):
         
-        if abs(neg_credits[debtor]) > max(pos_credits.values()):
+        if abs(neg_credits[debtor.strip()]) > max(pos_credits.values()):
             debtgreater = True
     
     # split process
@@ -101,17 +98,17 @@ def reduce_transactions(pos_credits, neg_credits, payments):
             
             for person in list(pos_credits.keys()):
                 
-                if abs(neg_credits[debtor]) >= pos_credits[person]:
-                    payment = {person: pos_credits[person]}
+                if abs(neg_credits[debtor.strip()]) >= pos_credits[person.strip()]:
+                    payment = {person.strip(): pos_credits[person.strip()]}
                     if debtor not in payments:
-                        payments[debtor] = payment
+                        payments[debtor.strip()] = payment
                     else:
-                        payments[debtor][person] = payment
-                    neg_credits[debtor] += pos_credits[person]
-                    del pos_credits[person]
+                        payments[debtor.strip()][person.strip()] = payment
+                    neg_credits[debtor.strip()] += pos_credits[person.strip()]
+                    del pos_credits[person.strip()]
 
-                    if neg_credits[debtor] == 0.0:
-                        del neg_credits[debtor]
+                    if neg_credits[debtor.strip()] == 0.0:
+                        del neg_credits[debtor.strip()]
 
         # return calculations    
 
