@@ -123,6 +123,10 @@ class AccountScreen(QWidget):
         Function to delete the account
         """
         # TODO: add a confirmation pop up box
-        self.originalwindow.account.deleteAcc()
-        self.originalwindow.close()
-        self.close()
+        reply = QMessageBox.warning(self, "Confirm account deletion", "Are you sure you want to delete your account?", 
+                                    QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            self.originalwindow.account.deleteAcc()
+            self.originalwindow.close()
+            self.close()

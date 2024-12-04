@@ -60,6 +60,7 @@ class EventScreen(QWidget):
         self.wlayout.addWidget(self.markaspaidbutton)
         self.wlayout.addWidget(self.markasunpaidbutton)
         self.setLayout(self.wlayout)
+        
 
     def refreshEventTable(self):
         self.eventtable.clear()
@@ -239,9 +240,14 @@ class EventTransactionsWindow(QWidget):
     def removeEvent(self):
         """
         Function to remove the current event from the list
+        
         """
-        self.originalwindow.remove_event(self.transEvent)
-        self.close()
+        reply = QMessageBox.warning(self, "Confirm account deletion", "Are you sure you want to delete this event?", 
+                                    QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        
+        if reply == QMessageBox.Yes:
+            self.originalwindow.remove_event(self.transEvent)
+            self.close()
 
     def createNewTransactionWindow(self):
         """
@@ -444,4 +450,5 @@ class NewEventWindow(QWidget):
                 self.savedEvent.add_people(friend_obj)
             originalwindow.saveCurEvent(self.savedEvent)
             originalwindow.addEventtoTable(self.savedEvent.name)
+            originalwindow.refreshEventTable()
         self.close()

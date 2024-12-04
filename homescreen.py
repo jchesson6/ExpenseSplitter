@@ -235,7 +235,6 @@ class inputAmountPaidWindow(QWidget):
         """
         Reduce amount owed to friend and update friends list
         """
-    
         amt = float(self.paidamt.text())
         if self.payersel.currentText() == self.paidsel.currentText():
             QMessageBox.critical(self, "Selection Error", "Person paid and person paying cannot match", buttons=QMessageBox.Ok)

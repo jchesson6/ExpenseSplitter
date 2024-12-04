@@ -304,6 +304,7 @@ class TransactionMenu(QWidget):
         self.editeventbutton = QPushButton("Edit Transaction")
         self.editeventbutton.clicked.connect(self.edit_transaction)
         self.deleventbutton = QPushButton("Delete Transaction")
+        self.deleventbutton.setStyleSheet("background-color : red")
         self.deleventbutton.clicked.connect(self.remove_transaction)
 
         # Set layout
@@ -328,8 +329,12 @@ class TransactionMenu(QWidget):
         """
         Delete the transaction
         """
-        self.originalwindow.removeTransaction(self.transaction)
-        self.close()
+        reply = QMessageBox.warning(self, "Confirm account deletion", "Are you sure you want to delete this transaction?", 
+                                    QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        
+        if reply == QMessageBox.Yes:
+            self.originalwindow.removeTransaction(self.transaction)
+            self.close()
 
 
 class EditTransactionWindow(QWidget):
