@@ -102,22 +102,43 @@ class MainWindow(QMainWindow):
         titlefont.setBold(True)
         applabel.setFont(titlefont)
 
+        applabel2 = QLabel("Group Expense Splitter")
+        applabel2.setAlignment(Qt.AlignHCenter)
+        titlefont2 = applabel2.font()
+        titlefont2.setPointSize(40)
+        titlefont2.setCapitalization(QFont.AllUppercase)
+        titlefont2.setBold(True)
+        applabel2.setFont(titlefont2)
+
         # Create registerscreen
         registerLayout = QVBoxLayout()
-        usernameLabel = QLabel("Username")
+        usernamelayout = QHBoxLayout()
+        passwordlayout1 = QHBoxLayout()
+        usernamecont = QWidget()
+        passwordcont = QWidget()
+        usernameLabel = QLabel("Username:")
         usernameLabel.setAlignment(Qt.AlignHCenter)
         usernameBox = QLineEdit()
-        passwordLabel = QLabel("Password")
+        passwordLabel = QLabel("Password:")
         passwordLabel.setAlignment(Qt.AlignHCenter)
         passwordBox = QLineEdit()
         submitRegister = QPushButton("Register")
 
+        usernamelayout.addWidget(usernameLabel)
+        usernamelayout.addWidget(usernameBox)
+        usernamecont.setLayout(usernamelayout)
+        passwordlayout1.addWidget(passwordLabel)
+        passwordlayout1.addWidget(passwordBox)
+        passwordcont.setLayout(passwordlayout1)
+
         # Create layout for register screen
         registerLayout.addWidget(applabel)
-        registerLayout.addWidget(usernameLabel)
-        registerLayout.addWidget(usernameBox)
-        registerLayout.addWidget(passwordLabel)
-        registerLayout.addWidget(passwordBox)
+        registerLayout.addWidget(usernamecont)
+        registerLayout.addWidget(passwordcont)
+        #registerLayout.addWidget(usernameLabel)
+        #egisterLayout.addWidget(usernameBox)
+        #registerLayout.addWidget(passwordLabel)
+        #registerLayout.addWidget(passwordBox)
         registerLayout.addWidget(submitRegister)
 
         registerWidget = QWidget()
@@ -139,7 +160,7 @@ class MainWindow(QMainWindow):
         passwordlayout.addWidget(passwordBox2)
         passwordcontainer.setLayout(passwordlayout)
 
-        loginlayout.addWidget(applabel)
+        loginlayout.addWidget(applabel2)
         loginlayout.addWidget(passwordcontainer)
         #loginlayout.addWidget(passwordBox2)
         loginlayout.addWidget(submitLogin)
@@ -203,7 +224,6 @@ class MainWindow(QMainWindow):
                 item.setBackground(QColor(0x00FF00))
                 self.eventScreen.addEventtoTable(item)
 
-        print(f"Loaded account: {self.account.username}")
 
     def register(self, username, password):
         """
@@ -214,7 +234,6 @@ class MainWindow(QMainWindow):
         self.account = classes.Account(username, password)
         self.accDetailsScreen.load_account(self.account)
         self.account.save()
-        print(f"Created account: {username}")
         dataFile.close()
 
     # TODO: create ability to add friends to event

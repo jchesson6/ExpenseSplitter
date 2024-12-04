@@ -62,7 +62,19 @@ class AccountScreen(QWidget):
         self.label0 = QLabel("{Username}")
         self.label1 = QLabel("{DisplayName}")
         self.label2 = QLabel("{NumFriends}")
-        self.label3 = QLabel("{TotalAmmountOwed}")
+
+        label0font = self.label0.font()
+        label1font = self.label1.font()
+        label2font = self.label2.font()
+
+        label0font.setPointSize(10)
+        label1font.setPointSize(10)
+        label2font.setPointSize(10)
+
+        self.label0.setFont(label0font)
+        self.label1.setFont(label1font)
+        self.label2.setFont(label2font)
+
         buttoncontainer = QWidget()
         buttonlayout = QHBoxLayout()
         self.editaccbutton = QPushButton("Set Display Name")
@@ -77,11 +89,9 @@ class AccountScreen(QWidget):
         self.label0.setAlignment(Qt.AlignHCenter)
         self.label1.setAlignment(Qt.AlignHCenter)
         self.label2.setAlignment(Qt.AlignHCenter)
-        self.label3.setAlignment(Qt.AlignHCenter)
         layout.addWidget(self.label0)
         layout.addWidget(self.label1)
         layout.addWidget(self.label2)
-        layout.addWidget(self.label3)
         layout.addWidget(buttoncontainer)
 
         self.setLayout(layout)
@@ -93,7 +103,6 @@ class AccountScreen(QWidget):
         self.label0.setText("Username: " + account.username)
         self.label1.setText("Display Name: " + account.displayName)
         self.label2.setText("Number of friends: " + str(account.num_friends))
-        self.label3.setText("Total Owed to Other Account: " + str(account.amt_owed_total))
 
     def createEditAccWindow(self):
         """

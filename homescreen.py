@@ -101,6 +101,7 @@ class HomeScreen(QWidget):
             tableindex = friendslist.index(name)
             self.friendslist.removeRow(tableindex)
             self.originalwindow.account.remove_friend(name)
+        self.originalwindow.accDetailsScreen.load_account(self.originalwindow.account)
         
 
     def updateList(self, account):
