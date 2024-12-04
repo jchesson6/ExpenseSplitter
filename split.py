@@ -76,7 +76,7 @@ def reduce_transactions(pos_credits, neg_credits, payments):
                 if debtor not in payments:
                     payments[debtor.strip()] = payment
                 else:
-                    payments[debtor.strip()][person.strip()] = payment
+                    payments[debtor.strip()][person.strip()] = debt_amt
                 pos_credits[person.strip()] += debt_amt
                 del neg_credits[debtor.strip()]
 
@@ -103,7 +103,7 @@ def reduce_transactions(pos_credits, neg_credits, payments):
                     if debtor not in payments:
                         payments[debtor.strip()] = payment
                     else:
-                        payments[debtor.strip()][person.strip()] = payment
+                        payments[debtor.strip()][person.strip()] = pos_credits[person.strip()]
                     neg_credits[debtor.strip()] += pos_credits[person.strip()]
                     del pos_credits[person.strip()]
 

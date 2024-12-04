@@ -110,7 +110,7 @@ class NewTransactionWindow(QWidget):
         """
         Add a payer to the transaction
         """
-        if self.num_debtors + self.num_payers == self.originalwindow.transEvent.num_people:
+        if self.num_debtors + self.num_payers == (self.originalwindow.transEvent.num_people + 1):
             QMessageBox.critical(self, "Error", "Number of people on transaction cannot exceed the number of people on the event", buttons=QMessageBox.Ok)
             return
 
@@ -148,7 +148,7 @@ class NewTransactionWindow(QWidget):
         """
         Add a debtor to the transaction
         """
-        if self.num_debtors + self.num_payers == self.originalwindow.transEvent.num_people:
+        if self.num_debtors + self.num_payers == (self.originalwindow.transEvent.num_people + 1):
             QMessageBox.critical(self, "Error", "Number of people on transaction cannot exceed the number of people on the event", buttons=QMessageBox.Ok)
             return
 
@@ -255,7 +255,6 @@ class NewTransactionWindow(QWidget):
                     QMessageBox.critical(self, "Name in both fields",payer + " is listed as both a payer and debtor", buttons=QMessageBox.Ok)
                     return
         
-        print(transaction)
         self.originalwindow.addTransaction(transaction)
         self.close()
 
@@ -376,7 +375,7 @@ class EditTransactionWindow(QWidget):
         for i, payer in enumerate(self.transaction.payers):
             payersel = QComboBox()
             payersel.addItem(self.originalwindow.originalwindow.originalwindow.account.displayName.strip())
-            print(self.originalwindow.transEvent.people)
+            
             for j, person in enumerate(self.originalwindow.transEvent.people):
                 payersel.addItem(person.name.strip())
                 if payer.strip() == person.name.strip():
@@ -502,7 +501,7 @@ class EditTransactionWindow(QWidget):
         """
         Add a payer to the transaction
         """
-        if self.num_debtors + self.num_payers == self.originalwindow.transEvent.num_people:
+        if self.num_debtors + self.num_payers == (self.originalwindow.transEvent.num_people + 1):
             QMessageBox.critical(self, "Error", "Number of people on transaction cannot exceed the number of people on the event", buttons=QMessageBox.Ok)
             return
         
@@ -530,7 +529,7 @@ class EditTransactionWindow(QWidget):
         """
         Add a debtor to the transaction
         """
-        if self.num_debtors + self.num_payers == self.originalwindow.transEvent.num_people:
+        if self.num_debtors + self.num_payers == (self.originalwindow.transEvent.num_people + 1):
             QMessageBox.critical(self, "Error", "Number of people on transaction cannot exceed the number of people on the event", buttons=QMessageBox.Ok)
             return
 

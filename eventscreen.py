@@ -113,6 +113,7 @@ class EventScreen(QWidget):
         self.eventtable.takeItem(self.curRow)
         self.eventtable.update()
         self.originalwindow.account.remove_event(event.name)
+        self.originalwindow.account.save()
 
     def set_selected_event(self, item):
         self.selectedEvent = item.text()
@@ -121,7 +122,7 @@ class EventScreen(QWidget):
         selEvent = self.originalwindow.account.events[self.selectedEvent]    
         
         results = split.calculate_split(selEvent, self.originalwindow.account)
-        self.paymentwindow = EventPaymentsWindow(selEvent, results)
+        self.paymentwindow = EventPaymentsWindow(self, selEvent, results)
         self.paymentwindow.show()
             #selEvent.is_complete = True
             #self.refreshEventTable()
@@ -137,27 +138,51 @@ class EventScreen(QWidget):
         self.refreshEventTable()
         self.originalwindow.account.save()
 
+
 class EventPaymentsWindow(QWidget):
     """
     Window that displays the payments that need to be made
     """
-    def __init__(self, event, payments):
+    def __init__(self, originalwindow, event, payments):
         """
         Create the window with a reference to the
         parent and create all of the widgets
         """
         super().__init__()
         self.setWindowTitle(event.name + " Payments")
+        self.payevent = event
+        self.payments = payments
+        self.originalwindow = originalwindow
         self.setFixedWidth(1000)
         layout = QVBoxLayout()
-
-        for payer, payment in payments.items():
-            for paid in payment:
-                label = QLabel(payer + " pays " + paid + " $" + str(payment[paid]))
+        for payer in payments.keys():
+            for paid in payments[payer]:
+                label = QLabel(payer + " pays " + paid + " $" + str(payments[payer][paid]))
                 layout.addWidget(label)
 
-
+        self.addtofriendsbutton = QPushButton("Add amounts to friends list")
+        self.addtofriendsbutton.clicked.connect(self.add_to_friends)
+        layout.addWidget(self.addtofriendsbutton)
         self.setLayout(layout)
+
+    def add_to_friends(self):
+        if self.payevent.is_complete:
+            QMessageBox.critical(self, "Event Complete", "Event already marked as complete. Mark as uncomplete to add to friends amounts again.")
+        else:
+
+            for payer, payment in self.payments.items():
+                for paid in payment:
+
+                    if payer.strip() == self.originalwindow.originalwindow.account.displayName.strip():
+                        self.originalwindow.originalwindow.account.friends[paid].amount_owed_by_user += float(payment[paid])
+                        self.originalwindow.originalwindow.account.friends[paid].amount_owed_to_user -= float(payment[paid])
+                    elif paid.strip() == self.originalwindow.originalwindow.account.displayName.strip():
+                        self.originalwindow.originalwindow.account.friends[payer].amount_owed_to_user += float(payment[paid])
+                        self.originalwindow.originalwindow.account.friends[payer].amount_owed_by_user -= float(payment[paid])
+
+            self.originalwindow.originalwindow.account.save()
+            self.originalwindow.originalwindow.homeScreen.updateList(self.originalwindow.originalwindow.account)
+        self.close()
 
 
 class EventTransactionsWindow(QWidget):
@@ -297,6 +322,7 @@ class EventTransactionsWindow(QWidget):
         self.transactionlist.addItem(item)
         self.transEvent.is_complete = False
         self.originalwindow.refreshEventTable()
+        self.originalwindow.originalwindow.account.save()
 
     def removeTransaction(self, transaction):
         """
@@ -307,6 +333,7 @@ class EventTransactionsWindow(QWidget):
         self.transEvent.remove_transaction(transaction)
         self.transEvent.is_complete = False
         self.originalwindow.refreshEventTable()
+        self.originalwindow.originalwindow.account.save()
 
 
 class EditEventWindow(QWidget):

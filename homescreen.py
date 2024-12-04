@@ -88,8 +88,8 @@ class HomeScreen(QWidget):
         newrow = self.friendslist.rowCount()
         self.friendslist.insertRow(newrow)
         self.friendslist.setItem(newrow, 0, QTableWidgetItem(friend.name))
-        self.friendslist.setItem(newrow, 1, QTableWidgetItem(str(friend.amount_owed_by_user)))
-        self.friendslist.setItem(newrow, 2, QTableWidgetItem(str(friend.amount_owed_to_user)))
+        self.friendslist.setItem(newrow, 1, QTableWidgetItem(str(friend.amount_owed_to_user)))
+        self.friendslist.setItem(newrow, 2, QTableWidgetItem(str(friend.amount_owed_by_user)))
         
     
     def remove_friend(self, name):
@@ -114,8 +114,8 @@ class HomeScreen(QWidget):
             newrow = self.friendslist.rowCount()
             self.friendslist.insertRow(newrow)
             self.friendslist.setItem(newrow, 0, QTableWidgetItem(friend))
-            self.friendslist.setItem(newrow, 1, QTableWidgetItem(str(account.friends[friend].amount_owed_by_user)))
-            self.friendslist.setItem(newrow, 2, QTableWidgetItem(str(account.friends[friend].amount_owed_to_user)))
+            self.friendslist.setItem(newrow, 1, QTableWidgetItem(str(account.friends[friend].amount_owed_to_user)))
+            self.friendslist.setItem(newrow, 2, QTableWidgetItem(str(account.friends[friend].amount_owed_by_user)))
         
 
 class NewFriendWindow(QWidget):
@@ -235,15 +235,28 @@ class inputAmountPaidWindow(QWidget):
         """
         Reduce amount owed to friend and update friends list
         """
+    
+        amt = float(self.paidamt.text())
         if self.payersel.currentText() == self.paidsel.currentText():
             QMessageBox.critical(self, "Selection Error", "Person paid and person paying cannot match", buttons=QMessageBox.Ok)
             return
         elif self.payersel.currentText() != "Me" and self.paidsel.currentText() != "Me":
             QMessageBox.critical(self, "Selection Error", "User must be one of the selections", buttons=QMessageBox.Ok)
-        elif self.payersel.currentText() == "Me":
-            self.originalwindow.originalwindow.account.friends[self.paidsel.currentText()].amount_owed_by_user -= float(self.paidamt.text())
-        elif self.paidsel.currentText() == "Me":
-            self.originalwindow.originalwindow.account.friends[self.payersel.currentText()].amount_owed_to_user -= float(self.paidamt.text())
+        elif self.payersel.currentText() == "Me" and self.originalwindow.originalwindow.account.friends[self.paidsel.currentText()].amount_owed_by_user >= amt:
+            self.originalwindow.originalwindow.account.friends[self.paidsel.currentText()].amount_owed_by_user -= amt
+            self.originalwindow.originalwindow.account.friends[self.paidsel.currentText()].amount_owed_to_user += amt
+        elif self.payersel.currentText() == "Me" and self.originalwindow.originalwindow.account.friends[self.paidsel.currentText()].amount_owed_by_user < amt:
+            newowedtouser = amt - self.originalwindow.originalwindow.account.friends[self.paidsel.currentText()].amount_owed_by_user
+            self.originalwindow.originalwindow.account.friends[self.paidsel.currentText()].amount_owed_by_user -= amt
+            self.originalwindow.originalwindow.account.friends[self.paidsel.currentText()].amount_owed_to_user = newowedtouser
+        elif self.paidsel.currentText() == "Me" and self.originalwindow.originalwindow.account.friends[self.payersel.currentText()].amount_owed_to_user >= amt:
+            self.originalwindow.originalwindow.account.friends[self.payersel.currentText()].amount_owed_to_user -= amt
+            self.originalwindow.originalwindow.account.friends[self.payersel.currentText()].amount_owed_by_user += amt
+        elif self.paidsel.currentText() == "Me" and self.originalwindow.originalwindow.account.friends[self.payersel.currentText()].amount_owed_to_user < amt:
+            newowedbyuser = amt - self.originalwindow.originalwindow.account.friends[self.payersel.currentText()].amount_owed_to_user
+            self.originalwindow.originalwindow.account.friends[self.payersel.currentText()].amount_owed_by_user = newowedbyuser
+            self.originalwindow.originalwindow.account.friends[self.payersel.currentText()].amount_owed_to_user -= amt
 
+        self.originalwindow.originalwindow.account.save()
         self.originalwindow.updateList(self.originalwindow.originalwindow.account)
         self.close()
