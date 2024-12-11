@@ -63,6 +63,9 @@ class EventScreen(QWidget):
         
 
     def refreshEventTable(self):
+        """
+        Clear and update the event list
+        """
         self.eventtable.clear()
         for event in self.originalwindow.account.events:
             if not self.originalwindow.account.events[event].is_complete:
@@ -117,9 +120,15 @@ class EventScreen(QWidget):
         self.originalwindow.account.save()
 
     def set_selected_event(self, item):
+        """
+        Capture selected event to be passed in
+        """
         self.selectedEvent = item.text()
 
     def calculate_event(self):
+        """
+        Create and show the event payments window as well as calculating split
+        """
         selEvent = self.originalwindow.account.events[self.selectedEvent]    
         
         results = split.calculate_split(selEvent, self.originalwindow.account)
@@ -130,11 +139,17 @@ class EventScreen(QWidget):
             #print(results)
 
     def markaspaid(self):
+        """
+        Mark an event as paid and refresh table
+        """
         self.originalwindow.account.events[self.selectedEvent].is_complete = True
         self.refreshEventTable()
         self.originalwindow.account.save()
 
     def markasunpaid(self):
+        """
+        Mark an event as unpaid and refresh table
+        """
         self.originalwindow.account.events[self.selectedEvent].is_complete = False
         self.refreshEventTable()
         self.originalwindow.account.save()
@@ -167,6 +182,9 @@ class EventPaymentsWindow(QWidget):
         self.setLayout(layout)
 
     def add_to_friends(self):
+        """
+        Add amounts owed to friends list
+        """
         if self.payevent.is_complete:
             QMessageBox.critical(self, "Event Complete", "Event already marked as complete. Mark as uncomplete to add to friends amounts again.")
         else:

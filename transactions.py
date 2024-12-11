@@ -181,6 +181,9 @@ class NewTransactionWindow(QWidget):
         self.set_equal_split()
 
     def set_equal_split(self):
+        """
+        Set fields to be equal if necessary 
+        """
 
         if self.setequalbutton.isChecked():
 

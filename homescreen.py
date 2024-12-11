@@ -83,6 +83,11 @@ class HomeScreen(QWidget):
         """
         Add a friend to the account
         """
+
+        if friend.name in self.originalwindow.account.friends.keys():
+            QMessageBox.critical(self, "Duplicate friend name", "Can't give friends exact same name. Differ by capitalization or add initials.", QMessageBox.Ok)
+            return
+        
         self.originalwindow.account.add_friend(friend)
         self.originalwindow.accDetailsScreen.load_account(self.originalwindow.account)
         newrow = self.friendslist.rowCount()

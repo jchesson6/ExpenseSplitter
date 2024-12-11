@@ -1,7 +1,14 @@
+"""
+split.py
+
+This file contains the algorithm for calculating splits
+"""
 import classes
 
-
 def calculate_split(event, account):
+    """
+    Algorithm for reducing transactions to credits
+    """
 
     credits = {}
     pos_credits = {}
@@ -66,6 +73,9 @@ def calculate_split(event, account):
 
             
 def reduce_transactions(pos_credits, neg_credits, payments):
+    """
+    Algorithm for reducing the amount of transactions
+    """
 
     for person in list(pos_credits.keys()):
 
